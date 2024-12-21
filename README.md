@@ -70,3 +70,113 @@ serv_addr.sin_addr.s_addr = INADDR_ANY;  // Listen on all connected IP addresses
 This allows the server to accept connections from any IP address.
 
 ---
+
+## Key Functions and Concepts
+
+### `setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))`
+- **SO_REUSEADDR**: This option allows the socket to reuse a port that is already in use, which is useful when the server is restarted or if there is an error that causes the socket to close unexpectedly.
+- **sockfd**: The socket descriptor obtained after calling `socket()`.
+- **SOL_SOCKET**: Specifies that the option is set at the socket level.
+- **SO_REUSEADDR**: The option to allow port reuse.
+- **&opt**: A pointer to the option value (1 in this case, meaning the option is enabled).
+- **sizeof(opt)**: Specifies the size of the `opt` variable.
+
+### `bind(server_fd, (struct sockaddr *)&address, sizeof(address))`
+- The `bind()` function binds a socket to a specific IP address and port.
+- `server_fd`: The socket file descriptor.
+- `address`: A structure holding the server's IP and port.
+- `addrlen`: The length of the address structure.
+- Example address setup:
+  ```cpp
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = INADDR_ANY;
+  address.sin_port = htons(PORT);
+  ```
+
+### `listen(server_fd, 3)`
+- The `listen()` function prepares the server socket to accept incoming connections. 
+- The second argument (`3`) specifies the maximum number of connections that can be queued before the server starts accepting them.
+
+### `accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)`
+- The `accept()` function accepts an incoming connection from a client.
+- Returns a new socket file descriptor (`new_socket`) that is used for communication with the client.
+- `address`: The client's IP and port information.
+- `addrlen`: The length of the address structure, which is updated upon return.
+
+### Client-Server Communication Loop
+```cpp
+while (true) {
+    memset(buffer, 0, BUFFER_SIZE);
+    int bytes_read = read(new_socket, buffer, BUFFER_SIZE);
+    if (bytes_read <= 0) break;
+    std::cout << "Message from client: " << buffer;
+    send(new_socket, buffer, strlen(buffer), 0);
+}
+```
+- **read(new_socket, buffer, BUFFER_SIZE)**: Reads data sent by the client into the `buffer`. If no data is received or the client disconnects, the loop ends.
+- **send(new_socket, buffer, strlen(buffer), 0)**: Echoes the received message back to the client.
+
+### `fd_set` and `select()`
+- **fd_set**: A data structure used to store a collection of file descriptors (sockets) that can be monitored for readiness (e.g., readability, writability, or errors).
+- **FD_ZERO()**: Clears all file descriptors in the `fd_set`.
+- **FD_SET()**: Adds a file descriptor to the `fd_set`.
+- **FD_CLR()**: Removes a file descriptor from the `fd_set`.
+- **FD_ISSET()**: Checks if a file descriptor is ready for reading, writing, or has an error.
+
+#### Example of using `select()`:
+```cpp
+fd_set readfds;
+FD_ZERO(&readfds);
+FD_SET(sockfd, &readfds);
+
+struct timeval timeout;
+timeout.tv_sec = 5;
+timeout.tv_usec = 0;
+
+int activity = select(MAX_FDS, &readfds, NULL, NULL, &timeout);
+if (activity == -1) {
+    std::cerr << "select() error" << std::endl;
+} else if (activity == 0) {
+    std::cout << "Timeout occurred, no data to read" << std::endl;
+} else {
+    if (FD_ISSET(sockfd, &readfds)) {
+        std::cout << "Data is available to read on sockfd" << std::endl;
+    }
+}
+```
+
+### Accepting New Connections
+```cpp
+if (FD_ISSET(sockfd, &tmpfds)) {
+    new_socket = accept(sockfd, NULL, NULL);
+    if (new_socket < 0)
+        perr("accept error failed", sockfd);
+    else {
+        std::cout << "Connection accepted" << std::endl;
+        FD_SET(new_socket, &readfds);
+        if (new_socket > max_sd)
+            max_sd = new_socket;
+        connected_clients.push_back(new_socket);
+    }
+}
+```
+- **FD_SET(new_socket, &readfds)**: Adds the new socket to the set for monitoring.
+- **max_sd**: Keeps track of the highest file descriptor, which is used by `select()` to monitor multiple file descriptors.
+- **connected_clients.push_back(new_socket)**: Adds the new client socket to the list of connected clients.
+
+### Receiving Data with `recv()`
+```cpp
+int valread = recv(connected_clients[i], buffer, sizeof(buffer), 0);
+```
+- **recv()**: Receives data from a socket.
+- Returns the number of bytes read, `0` if the client closes the connection, or a negative value if there is an error.
+  - **sockfd**: The socket file descriptor.
+  - **buf**: The buffer to store the received data.
+  - **len**: The maximum number of bytes to read.
+  - **flags**: Usually set to `0` for normal data reception.
+
+### Conclusion
+This server handles multiple clients efficiently using `select()` and `fd_set` for non-blocking I/O operations. It can accept new connections, receive messages, and send responses to clients. The server supports basic echo functionality and allows handling multiple clients concurrently.
+
+For further details, check the source code and make sure to modify the port and other configurations as needed.
+```
