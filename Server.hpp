@@ -1,10 +1,13 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include "Client.hpp"
 #include <iostream>
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <unistd.h>
+#include <fstream>
 
 
 class Server{
@@ -14,8 +17,10 @@ class Server{
         int port;
         std::string password;
         int sockfd;
-        std::vector<int> clients;
+        std::vector<Client> clients;
+        std::vector<int> connected_clients;
         fd_set read_fds;
+        int max_fd;
     public:
         Server(int port, std::string password);
         Server(Server const &server);
@@ -24,6 +29,7 @@ class Server{
 
         
         void startServer();
+        void loopProgram();
 
 
 
