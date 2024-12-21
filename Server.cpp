@@ -68,7 +68,6 @@ void Server::startServer(){
 }
 
 void Server::loopProgram(){
-    int client_sockfd;
     while (1){
         fd_set active_fds = read_fds;
         int activity = select(max_fd + 1, &active_fds, NULL, NULL, NULL);
@@ -77,7 +76,7 @@ void Server::loopProgram(){
             exit(1);
         }
         if (FD_ISSET(sockfd, &active_fds)){
-            client_sockfd = accept(sockfd, NULL, NULL);
+            int client_sockfd = accept(sockfd, NULL, NULL);
             if (client_sockfd < 0){
                 close(client_sockfd);
                 std::cout << "Accept KO" << std::endl;
@@ -93,5 +92,43 @@ void Server::loopProgram(){
             Client new_client(client_sockfd);
             this->clients.push_back(new_client);
         }
+    
+    int bytes_received;
+    std::vector<char> buffer(1024, 0); 
+    for (size_t client_index = 0; client_index < connected_clients.size(); client_index++){
+        if (FD_ISSET(connected_clients[client_index], &active_fds)){
+            bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0);
+            logControl(client_index);
+            if (bytes_received < 0){
+                close(connected_clients[client_index]);
+                std::cout << "Recv KO" << std::endl;
+                exit(1);
+            }
+            else if (bytes_received == 0){
+                close(connected_clients[client_index]);
+                connected_clients.erase(connected_clients.begin() + client_index);
+                --client_index;
+                std::cout << "Client disconnected" << std::endl;
+                exit(1);
+            }
+            else{
+                std::cout << "Received: " << buffer.data() << std::endl;
+                memset(buffer.data(), 0, buffer.size());
+            }
+        }
     }
+    }
+}
+
+void Server::logControl(size_t client_index){
+    if (clients[client_index].getPassword() != "" &&
+        // clients[client_index].getUsername() != "" &&
+        // clients[client_index].getNickname() != "" &&
+        clients[client_index].getConnected()){
+            clients[client_index].setConnected(true);
+            std::cout << "Client connected" << std::endl;
+            clients[client_index].message(":" + clients[client_index].getIp_address() + " 001 " + clients[client_index].getNickname() + " :Welcome to the Internet Relay Network " \
+						+ clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + "\r\n");
+        }
+
 }

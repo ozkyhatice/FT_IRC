@@ -10,6 +10,7 @@
 #include <fstream>
 
 
+
 class Server{
     private:
 
@@ -30,6 +31,7 @@ class Server{
         
         void startServer();
         void loopProgram();
+        void logControl(size_t client_index);
 
 
 
