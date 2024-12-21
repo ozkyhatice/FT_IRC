@@ -175,8 +175,3 @@ int valread = recv(connected_clients[i], buffer, sizeof(buffer), 0);
   - **len**: The maximum number of bytes to read.
   - **flags**: Usually set to `0` for normal data reception.
 
-### Conclusion
-This server handles multiple clients efficiently using `select()` and `fd_set` for non-blocking I/O operations. It can accept new connections, receive messages, and send responses to clients. The server supports basic echo functionality and allows handling multiple clients concurrently.
-
-For further details, check the source code and make sure to modify the port and other configurations as needed.
-```
