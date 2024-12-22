@@ -1,4 +1,5 @@
 # IRC  - Server Setup and Connection
+![img](https://github.com/user-attachments/assets/0c1c6d35-3361-4c7e-b3a2-fcbd325d2df8)
 
 This project develops an IRC application using C++. The following sections provide detailed information on setting up the server, making connections, and using sockets.
 
