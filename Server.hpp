@@ -5,6 +5,7 @@
 #include "Channel.hpp"
 #include <iostream>
 #include <vector>
+#include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
@@ -44,7 +45,11 @@ public:
     void checkCommands(std::vector<char> &buffer);
     void executeCommand(size_t client_index);
 
+    bool isClientExist(std::string nickName);
+    void printAllClients();
+
     void help(size_t client_index);
+    void nick(size_t client_index);
 
 
 };

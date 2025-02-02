@@ -164,21 +164,20 @@ void Server::logControl(size_t client_index)
 void Server::checkCommands(std::vector<char> &buffer)
 {
     std::string buffer_string(buffer.begin(), buffer.end());
+    std::string token;
+    std::istringstream iss(buffer_string);
 
-    std::size_t prev = 0, pos;
-    while ((pos = buffer_string.find_first_of(" :\r\n", prev)) != std::string::npos)
+    while (std::getline(iss, token, ' '))
     {
-        if (pos > prev)
-            this->input.push_back(buffer_string.substr(prev, pos - prev));
-        prev = pos + 1;
+        if (!token.empty())
+        {
+            size_t pos = token.find_first_of(":\r\n");
+            if (pos != std::string::npos)
+                token = token.substr(0, pos);
+            if (!token.empty())
+                this->input.push_back(token);
+        }
     }
-    if (prev < buffer_string.length())
-        this->input.push_back(buffer_string.substr(prev, std::string::npos));
-
-    // for (size_t i = 0; i < this->input.size(); i++)
-    // {
-    //     std::cout << "-->" << this->input[i] << std::endl;
-    // }
 }
 
 void Server::executeCommand(size_t c_index)
@@ -186,8 +185,10 @@ void Server::executeCommand(size_t c_index)
     std::vector<std::string> commands;
     std::vector<fpoint> functions;
 
+    commands.push_back("NICK");
     commands.push_back("HELP");
 
+    functions.push_back(&Server::nick);
     functions.push_back(&Server::help);
 
 
