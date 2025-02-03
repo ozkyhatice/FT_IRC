@@ -46,12 +46,14 @@ public:
     void executeCommand(size_t client_index);
 
     bool isClientExist(std::string nickName);
-    void printAllClients();
 
-    void help(size_t client_index);
     void nick(size_t client_index);
+    void user(size_t client_index);
+    void help(size_t client_index);
 
-
+    // test
+    void printAllClients();
+    void printAllInputs();
 };
 
 #endif

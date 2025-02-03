@@ -119,9 +119,15 @@ void Server::loopProgram()
                 bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0); // Receive the message from the client
 
                 checkCommands(buffer); // parse buffer here
+                printAllInputs();
+
                 executeCommand(client_index); // execute Command here
+                printAllClients();
 
                 logControl(client_index);
+
+
+
                 if (bytes_received < 0)
                 {
                     close(connected_clients[client_index]);
@@ -167,16 +173,34 @@ void Server::checkCommands(std::vector<char> &buffer)
     std::string token;
     std::istringstream iss(buffer_string);
 
+    bool realname_started = false;
+    std::string realname;
     while (std::getline(iss, token, ' '))
     {
         if (!token.empty())
         {
-            size_t pos = token.find_first_of(":\r\n");
-            if (pos != std::string::npos)
-                token = token.substr(0, pos);
-            if (!token.empty())
+            if (token[0] == ':')
+            {
+                realname_started = true;
+                token = token.substr(1);
+            }
+            if (realname_started)
+            {
+                if (!realname.empty())
+                {
+                    realname += " ";
+                }
+                realname += token;
+            }
+            else
+            {
                 this->input.push_back(token);
+            }
         }
+    }
+    if (!realname.empty())
+    {
+        this->input.push_back(realname);
     }
 }
 
@@ -186,9 +210,11 @@ void Server::executeCommand(size_t c_index)
     std::vector<fpoint> functions;
 
     commands.push_back("NICK");
+    commands.push_back("USER");
     commands.push_back("HELP");
 
     functions.push_back(&Server::nick);
+    functions.push_back(&Server::user);
     functions.push_back(&Server::help);
 
 

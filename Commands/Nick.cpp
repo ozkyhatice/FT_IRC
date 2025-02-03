@@ -1,20 +1,5 @@
 #include "../Server.hpp"
 
-void Server::printAllClients()
-{
-	std::cout << "input size:" << this->input.size() << std::endl;
-
-	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
-	{
-		std::cout << "Client Nickname: " << it->getNickname() << std::endl;
-		std::cout << "Client Username: " << it->getUsername() << std::endl;
-		std::cout << "Client Password: " << it->getPassword() << std::endl;
-		std::cout << "Client IP Address: " << it->getIp_address() << std::endl;
-		std::cout << "Client Connected: " << it->getConnected() << std::endl;
-		std::cout << std::endl;
-	}
-}
-
 bool Server::isClientExist(std::string nickName)
 {
 	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
@@ -28,7 +13,6 @@ bool Server::isClientExist(std::string nickName)
 
 void Server::nick(size_t client_index)
 {
-	printAllClients();
 	if (this->input.size() == 2)
 	{
 		if(isClientExist(this->input[1]) == false)
