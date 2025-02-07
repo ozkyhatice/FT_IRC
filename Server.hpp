@@ -26,11 +26,11 @@ private:
     
     fd_set read_fds;
     struct sockaddr_in server_addr;
-    
+
     int max_fd;
 
     std::vector<std::string> input;
-	typedef void(Server::*fpoint)(size_t);
+    typedef void(Server::*fpoint)(size_t);
 
 public:
     Server(int port, std::string password);
@@ -50,10 +50,12 @@ public:
     void nick(size_t client_index);
     void user(size_t client_index);
     void help(size_t client_index);
+    void pass(size_t client_index);
 
     // test
     void printAllClients();
     void printAllInputs();
+    void printServer();
 };
 
 #endif

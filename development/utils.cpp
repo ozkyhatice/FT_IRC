@@ -5,7 +5,7 @@ void Server::printAllInputs()
 	std::cout << "Printing all inputs:" << std::endl;
 	for (size_t i = 0; i < this->input.size(); i++)
 	{
-		std::cout << "input[" << i << "]: " << this->input[i] << std::endl;
+		std::cout << "input[" << i << "]: " << this->input[i] << "~" << std::endl;
 	}
 	std::cout << "Total number of inputs: " << this->input.size() << std::endl;
 	std::cout << std::endl;
@@ -24,4 +24,13 @@ void Server::printAllClients()
 		std::cout << "Client Connected: " << it->getConnected() << std::endl;
 		std::cout << std::endl;
 	}
+}
+
+void Server::printServer()
+{
+	std::cout << "Server sockfd: " << this->sockfd << std::endl;
+	std::cout << "Server Port: " << this->port << std::endl;
+	std::cout << "Server Password: " << this->password << std::endl;
+	std::cout << "Server Max fd: " << this->max_fd << std::endl;
+	std::cout << std::endl;
 }

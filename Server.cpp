@@ -118,6 +118,8 @@ void Server::loopProgram()
             {
                 bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0); // Receive the message from the client
 
+                printServer();
+
                 checkCommands(buffer); // parse buffer here
                 printAllInputs();
 
@@ -159,7 +161,7 @@ void Server::logControl(size_t client_index)
     if (clients[client_index].getPassword() != "" &&
         clients[client_index].getUsername() != "" &&
         clients[client_index].getNickname() != "" &&
-        !clients[client_index].getConnected())
+        clients[client_index].getConnected() == false)
     {
         clients[client_index].setConnected(true);
         std::cout << "Client connected" << std::endl;
@@ -169,40 +171,50 @@ void Server::logControl(size_t client_index)
 
 void Server::checkCommands(std::vector<char> &buffer)
 {
-    std::string buffer_string(buffer.begin(), buffer.end());
-    std::string token;
-    std::istringstream iss(buffer_string);
+    // Null karakterleri kaldırarak temiz bir string oluştur
+    std::string buffer_string(buffer.data(), buffer.size());
 
+    // Sondaki gereksiz '\r' ve '\n' karakterlerini temizle
+    while (!buffer_string.empty() && (buffer_string.back() == '\r' || buffer_string.back() == '\n' || buffer_string.back() == '\0'))
+    {
+        buffer_string.pop_back();
+    }
+
+    std::istringstream iss(buffer_string);
+    std::string token;
+    
     bool realname_started = false;
     std::string realname;
-    while (std::getline(iss, token, ' '))
+
+    // Kelimeleri boşluklara göre ayır
+    while (iss >> token) 
     {
-        if (!token.empty())
+        if (realname_started)
         {
-            if (token[0] == ':')
-            {
-                realname_started = true;
-                token = token.substr(1);
-            }
-            if (realname_started)
-            {
-                if (!realname.empty())
-                {
-                    realname += " ";
-                }
-                realname += token;
-            }
-            else
-            {
-                this->input.push_back(token);
-            }
+            // `:` ile başlayan kısımdan sonra her şeyi tek bir string olarak al
+            realname += (realname.empty() ? "" : " ") + token;
+        }
+        else if (token[0] == ':')
+        {
+            // `:` ile başlayan kısmı `realname` olarak belirle
+            realname_started = true;
+            realname = token.substr(1);
+        }
+        else
+        {
+            this->input.push_back(token);
         }
     }
+
     if (!realname.empty())
     {
         this->input.push_back(realname);
     }
 }
+
+
+
+
 
 void Server::executeCommand(size_t c_index)
 {
@@ -211,10 +223,12 @@ void Server::executeCommand(size_t c_index)
 
     commands.push_back("NICK");
     commands.push_back("USER");
+    commands.push_back("PASS");
     commands.push_back("HELP");
 
     functions.push_back(&Server::nick);
     functions.push_back(&Server::user);
+    functions.push_back(&Server::pass);
     functions.push_back(&Server::help);
 
 
