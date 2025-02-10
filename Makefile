@@ -1,6 +1,6 @@
 NAME = ircserv
 
-SRCS = 	main.cpp Server.cpp Client.cpp Channel.cpp Commands/Help.cpp Commands/Nick.cpp Commands/User.cpp Commands/Pass.cpp development/utils.cpp
+SRCS = 	main.cpp Server.cpp Client.cpp Channel.cpp Commands/Help.cpp Commands/Nick.cpp Commands/User.cpp Commands/Pass.cpp Commands/Privmsg.cpp development/utils.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 CXX_STANDARD = c++98

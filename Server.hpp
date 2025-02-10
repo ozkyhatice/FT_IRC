@@ -51,6 +51,7 @@ public:
     void user(size_t client_index);
     void help(size_t client_index);
     void pass(size_t client_index);
+    void privmsg(size_t client_index);
 
     // test
     void printAllClients();

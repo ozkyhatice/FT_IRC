@@ -224,11 +224,13 @@ void Server::executeCommand(size_t c_index)
     commands.push_back("NICK");
     commands.push_back("USER");
     commands.push_back("PASS");
-    commands.push_back("HELP");
+    commands.push_back("PRIVMSG");
+    commands.push_back("help");
 
     functions.push_back(&Server::nick);
     functions.push_back(&Server::user);
     functions.push_back(&Server::pass);
+    functions.push_back(&Server::privmsg);
     functions.push_back(&Server::help);
 
 
