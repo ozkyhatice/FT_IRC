@@ -1,3 +1,37 @@
+## To-Do List
+
+#### her kullanici ilk baglandiginda USER ve PASS komutu kullanarak login olmali
+
+- USER <.nickname> <.mode> <.unused> :<.username>
+  - nickname uniq olmaki buyuzden daha once alinmadigini kontrol eder
+  - mode ve unused degerlerini kullnmadik
+  - username iki noktadan sonra ise birden fazla kelime olabilir
+- PASS <.password>
+  - server baslatilirken belirlenen sifre ile giris yapar
+  - kullanci daha once giris yapmis mi kontrol eder
+
+#### Eger kullanici login olabilmisse bu komutlari kullanbilir
+
+- JOIN #channel
+  - eger channel yoksa olusturuyor
+  - channel varsa ve client daha once eklenmediyse ekliyor
+- PRIVMSG #channel mesaj
+  - eger kullanici channelda ekli degilse mesaj gondermez
+- PRIVMSG <.nickname> mesaj
+  - nickname ile eslesen kullanici yoksa hata mesaji doner
+- PRIVMSG #channel :birden fazla bosluklu mesaj
+  - iki nokta eklenirse bosluklu mesajlar gonderilir
+- NICK <.newnickname>
+  - clientin nicknameini degistirebilmesi saglar
+  - login olmadan kullanilabir
+  - nicknamein daha once alinip alinmadigini kontrol eder
+- HELP veya help
+  - client a serverda rehber olacak komutlarin nasil kullanildigini vs. aciklayacak
+  - kvirc kucuk harfle gonderiyor servera 
+
+---
+<br>
+
 # IRC  - Server Setup and Connection
 ![img](https://github.com/user-attachments/assets/e9b69897-c5b7-44c7-a986-1480c4925ffd)
 
