@@ -32,6 +32,9 @@ class Channel{
         void removeOperator(Client client);
         bool isOperator(Client client);
         std::vector<Client> getOperators();
+
+        bool isClientInChannel(std::string nickname);
+
 };
 
 #endif

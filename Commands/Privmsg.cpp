@@ -1,4 +1,5 @@
 #include "../Server.hpp"
+#include "../Channel.hpp"
 
 void Server::privmsg(size_t client_index)
 {
@@ -29,6 +30,12 @@ void Server::privmsg(size_t client_index)
             if (it->getName() == target)
             {
                 channel_found = true;
+                // Check if client is in the channel
+                if (!it->isClientInChannel(clients[client_index].getNickname()))
+                {
+                    clients[client_index].message(":server 442 " + clients[client_index].getNickname() + " " + target + " :You're not on that channel\r\n");
+                    return;
+                }
                 // Send message to all clients in the channel except the sender
                 std::vector<Client> channel_clients = it->getClients();
                 for (std::vector<Client>::iterator cit = channel_clients.begin(); cit != channel_clients.end(); ++cit)
