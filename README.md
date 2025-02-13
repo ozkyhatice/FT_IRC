@@ -30,6 +30,9 @@
   - userin channel a katilmis olmasi gerekli
   - userin operator olmasi gerekli
   - topic degistiginde tum channel uyelerine mesaj gider
+- KICK [#channel] [nickname] :[reason]
+  - eger komutu yazan kisi operator ise kisiyi kanaldan atar
+  - kanalin varligini kullanicinin bulunup bulunmadigini kontrol eder
 
 
 - HELP veya help
