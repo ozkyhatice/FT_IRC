@@ -2,29 +2,65 @@
 
 #### her kullanici ilk baglandiginda USER ve PASS komutu kullanarak login olmali
 
-- USER <.nickname> <.mode> <.unused> :<.username>
+- USER [nickname] [mode] [unused] :[username]
   - nickname uniq olmaki buyuzden daha once alinmadigini kontrol eder
   - mode ve unused degerlerini kullnmadik
   - username iki noktadan sonra ise birden fazla kelime olabilir
-- PASS <.password>
+- PASS [password]
   - server baslatilirken belirlenen sifre ile giris yapar
   - kullanci daha once giris yapmis mi kontrol eder
 
 #### Eger kullanici login olabilmisse bu komutlari kullanbilir
 
-- JOIN #channel
+- JOIN [#channel]
   - eger channel yoksa olusturuyor
   - channel varsa ve client daha once eklenmediyse ekliyor
-- PRIVMSG #channel mesaj
+- PRIVMSG [#channel] [mesaj]
   - eger kullanici channelda ekli degilse mesaj gondermez
-- PRIVMSG <.nickname> mesaj
+- PRIVMSG [nickname] [mesaj]
   - nickname ile eslesen kullanici yoksa hata mesaji doner
-- PRIVMSG #channel :birden fazla bosluklu mesaj
+- PRIVMSG [#channel] :[birden fazla bosluklu mesaj]
   - iki nokta eklenirse bosluklu mesajlar gonderilir
-- NICK <.newnickname>
+- NICK [nickname]
   - clientin nicknameini degistirebilmesi saglar
   - login olmadan kullanilabir
   - nicknamein daha once alinip alinmadigini kontrol eder
+- TOPIC [#channel] [topic]
+  - Channel in topic mesajini set eder
+  - userin channel a katilmis olmasi gerekli
+  - userin operator olmasi gerekli
+  - topic degistiginde tum channel uyelerine mesaj gider
+- KICK [#channel] [nickname] :[reason]
+  - eger komutu yazan kisi operator ise kisiyi kanaldan atar
+  - kanalin varligini kullanicinin bulunup bulunmadigini kontrol eder
+- MODE [#channel] [+/-][o/k/i/t/l] [parameter]
+  - Channel operatorleri tarafindan kullanilabilir
+  - +o [nickname] ile kullaniciya operator yetkisi verilir
+  - -o [nickname] ile kullanicinin operator yetkisi alinir
+  - 
+  - +k [key] ile channel a sifre konulur
+  - -k ile channel in sifresi kaldirilir
+  - 
+  - +i ile channel invite-only olur
+  - -i ile channel invite-only olmaktan cikar
+  - 
+  - +t ile sadece operatorler topic degistirebilir
+  - -t ile tum kullanicilar topic degistirebilir
+  - 
+  - +l [limit] ile channel a kullanici limiti konulur
+  - -l ile channel in kullanici limiti kaldirilir
+  - 
+  - kullanicinin channel da olmasi ve operator olmasi gerekir
+  - tum channel uyelerine mode degisikligi mesaji gider
+- INVITE [nickname] [#channel]
+  - Channel operatorleri tarafindan kullanilabilir
+  - Invite edilen kullanicinin server da olmasi gerekir
+  - Invite eden kisinin channel da olmasi ve operator olmasi gerekir
+  - Invite edilen kullanici channel da degilse invite edilir
+  - Invite edilen kullanici channel a katilabilir
+  - Invite edilen kullanici channel a katilmak icin JOIN komutunu kullanmalidir
+
+
 - HELP veya help
   - client a serverda rehber olacak komutlarin nasil kullanildigini vs. aciklayacak
   - kvirc kucuk harfle gonderiyor servera 
