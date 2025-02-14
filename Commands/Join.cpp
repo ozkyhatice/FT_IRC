@@ -1,18 +1,6 @@
 #include "../Server.hpp"
 #include "../Channel.hpp"
 
-bool Channel::isClientInChannel(std::string nickname)
-{
-	for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	{
-		if (it->getNickname() == nickname)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void Server::join(size_t client_index)
 {
 	// Check if client is connected
