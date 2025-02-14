@@ -128,3 +128,25 @@ void Channel::setLimit(int limit){
 int Channel::getLimit() const{
     return _limit;
 }
+
+void Channel::addInvited(Client client) {
+    _invitedClients.push_back(client);
+}
+
+void Channel::removeInvited(Client client) {
+    for (std::vector<Client>::iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
+        if (it->getNickname() == client.getNickname()) {
+            _invitedClients.erase(it);
+            break;
+        }
+    }
+}
+
+bool Channel::isInvited(Client client) const {
+    for (std::vector<Client>::const_iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
+        if (it->getNickname() == client.getNickname()) {
+            return true;
+        }
+    }
+    return false;
+}

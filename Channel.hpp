@@ -64,6 +64,10 @@ class Channel{
 
         //development tests
         void printChannel();
+
+        void addInvited(Client client);
+        void removeInvited(Client client);
+        bool isInvited(Client client) const;
 };
 
 #endif

@@ -122,6 +122,42 @@ void Server::mode(size_t client_index)
                 it->setChannelKey(false);
                 mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -k\r\n";
             }
+            else if (mode == "+i")
+            {
+                it->setInviteOnly(true);
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +i\r\n";
+            }
+            else if (mode == "-i")
+            {
+                it->setInviteOnly(false);
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -i\r\n";
+            }
+            else if (mode == "+t")
+            {
+                it->setTopicProtection(true);
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +t\r\n";
+            }
+            else if (mode == "-t")
+            {
+                it->setTopicProtection(false);
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -t\r\n";
+            }
+            else if (mode == "+l")
+            {
+                if (parameter.empty())
+                {
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> +l <limit>\r\n");
+                    return;
+                }
+                it->setLimit(std::atoi(parameter.c_str()));
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +l " + parameter + "\r\n";
+            }
+            else if (mode == "-l")
+            {
+                it->setLimit(0);
+                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -l\r\n";
+            }
             else
             {
                 clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + mode + " :Unknown MODE flag\r\n");

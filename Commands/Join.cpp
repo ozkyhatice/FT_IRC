@@ -44,6 +44,20 @@ void Server::join(size_t client_index)
                 return;
             }
 
+            // Check if channel is invite-only
+            if (it->getInviteOnly() && !it->isInvited(clients[client_index]))
+            {
+                clients[client_index].message(":server 473 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (+i) - you must be invited\r\n");
+                return;
+            }
+
+            // Check if channel has reached its limit
+            if (it->getLimit() > 0 && it->getClients().size() >= (size_t)it->getLimit())
+            {
+                clients[client_index].message(":server 471 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (+l) - channel is full\r\n");
+                return;
+            }
+
             // Check if channel requires a key
             if (it->getChannelKey())
             {
