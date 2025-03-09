@@ -84,13 +84,8 @@ void Server::loopProgram()
     while (1)
     {
         fd_set active_fds = read_fds;
-        int activity = select(max_fd + 1, &active_fds, NULL, NULL, NULL);
-        if (activity < 0)
-        {
-            std::cout << "Select KO" << std::endl;
-            exit(1);
-        }
-        if (FD_ISSET(sockfd, &active_fds)) // If the sockfd is in the active_fds set, a new client is trying to connect to the server and the server should accept the connection.
+        select(max_fd + 1, &active_fds, NULL, NULL, NULL); // Wait for activity on the sockets in the read_fds set
+        if (FD_ISSET(sockfd, &active_fds))                 // If the sockfd is in the active_fds set, a new client is trying to connect to the server and the server should accept the connection.
         {
             int client_sockfd = accept(sockfd, NULL, NULL);
             if (client_sockfd < 0)
@@ -113,27 +108,23 @@ void Server::loopProgram()
 
         int bytes_received;
         std::vector<char> buffer(1024, 0);
-        for (size_t client_index = 0; client_index < connected_clients.size(); client_index++) // Loop through all connected clients to check if any of them have sent a message
+        for (size_t client_index = 0; client_index < connected_clients.size(); /* artırma operatörünü kaldırdık */)
         {
-            if (FD_ISSET(connected_clients[client_index], &active_fds)) // If the client's socket is in the active_fds set, the client has sent a message to the server.
+            if (FD_ISSET(connected_clients[client_index], &active_fds))
             {
-                bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0); // Receive the message from the client
+                bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0);
 
                 printServer();
-
-                checkCommands(buffer); // parse buffer here
+                checkCommands(buffer);
                 printAllInputs();
-
-                executeCommand(client_index); // execute Command here
+                executeCommand(client_index);
                 printAllClients();
-
                 logControl(client_index);
-                
+
                 for (size_t i = 0; i < channels.size(); ++i)
                 {
                     channels[i].printChannel();
                 }
-
 
                 if (bytes_received < 0)
                 {
@@ -143,18 +134,34 @@ void Server::loopProgram()
                 }
                 else if (bytes_received == 0)
                 {
-                    close(connected_clients[client_index]);
-                    connected_clients.erase(connected_clients.begin() + client_index);
-                    --client_index;
+                    std::cout << "index:" << client_index << std::endl;
                     std::cout << "Client disconnected" << std::endl;
-                    exit(1);
+
+                    // Önce soket dosya tanımlayıcısını kapatıyoruz
+                    close(connected_clients[client_index]);
+
+                    // Client nesnesini ve soket tanımlayıcısını senkronize olarak siliyoruz
+                    clients.erase(clients.begin() + client_index);
+                    FD_CLR(connected_clients[client_index], &read_fds); // read_fds kümesinden de kaldırıyoruz
+                    connected_clients.erase(connected_clients.begin() + client_index);
+
+                    // client_index artırılmıyor çünkü yeni eleman şimdi bu indekste
+                    // böylece hiçbir client atlanmaz
                 }
                 else
                 {
                     logControl(client_index);
                     std::cout << "Received: " << buffer.data() << std::endl;
                     memset(buffer.data(), 0, buffer.size());
+
+                    // Sadece normal durumda client_index artırılır
+                    client_index++;
                 }
+            }
+            else
+            {
+                // Hiçbir aktivite yoksa, bir sonraki client'a geç
+                client_index++;
             }
         }
     }
@@ -187,12 +194,12 @@ void Server::checkCommands(std::vector<char> &buffer)
 
     std::istringstream iss(buffer_string);
     std::string token;
-    
+
     bool realname_started = false;
     std::string realname;
 
     // Kelimeleri boşluklara göre ayır
-    while (iss >> token) 
+    while (iss >> token)
     {
         if (realname_started)
         {
@@ -216,10 +223,6 @@ void Server::checkCommands(std::vector<char> &buffer)
         this->input.push_back(realname);
     }
 }
-
-
-
-
 
 void Server::executeCommand(size_t c_index)
 {
@@ -248,10 +251,9 @@ void Server::executeCommand(size_t c_index)
     functions.push_back(&Server::invite);
     functions.push_back(&Server::help);
 
-
     for (size_t i = 0; i < commands.size(); i++)
     {
-        for(size_t j = 0; j < this->input.size(); j++)
+        for (size_t j = 0; j < this->input.size(); j++)
         {
             if (this->input[j] == commands[i])
             {
