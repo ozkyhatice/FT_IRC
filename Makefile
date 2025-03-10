@@ -16,11 +16,15 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJS) 
+	rm -f $(OBJS)
 
 fclean: clean
 	rm -rf $(NAME) .vscode
 
 re: fclean all
 
-.PHONY: all clean fclean re
+# Valgrind target to check for memory leaks
+valgrind: $(NAME)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME)
+
+.PHONY: all clean fclean re valgrind

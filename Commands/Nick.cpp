@@ -1,16 +1,5 @@
 #include "../Server.hpp"
 
-bool Server::isClientExist(std::string nickName)
-{
-	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
-	{
-		if (nickName == it->getNickname())
-			return (true);
-	}
-	return (false);
-}
-
-
 void Server::nick(size_t client_index)
 {
 	if (this->input.size() == 2)
