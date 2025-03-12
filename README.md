@@ -1,3 +1,4 @@
+https://graceful-colby-ca0.notion.site/IRC-17097847c08a80b9ba30e68e199da6b8?pvs=4
 # IRC
 
 Ağ üzerinde iki yönlü iletişimi yürütmek için iki cihaza bağlantı olarak bağlanan bir ağ. Cihazlardan veri alır ve cihazlara veri gönderir. Soket adresi, IP adresi ve portun bir kombinasyonudur. TCP/IP katmanında bir soket, verilerin bir uygulamaya gönderilip gönderilmeyeceğini belirleyebilen bir port numarası olarak bağlanır. Soketteki taşıma katmanı, cihazlar arasındaki iletişimi yönetmek ve kurmak için temel mekanizmadır.
