@@ -1,248 +1,251 @@
-## To-Do List
+# IRC
 
-#### her kullanici ilk baglandiginda USER ve PASS komutu kullanarak login olmali
+Ağ üzerinde iki yönlü iletişimi yürütmek için iki cihaza bağlantı olarak bağlanan bir ağ. Cihazlardan veri alır ve cihazlara veri gönderir. Soket adresi, IP adresi ve portun bir kombinasyonudur. TCP/IP katmanında bir soket, verilerin bir uygulamaya gönderilip gönderilmeyeceğini belirleyebilen bir port numarası olarak bağlanır. Soketteki taşıma katmanı, cihazlar arasındaki iletişimi yönetmek ve kurmak için temel mekanizmadır.
 
-- USER [nickname] [mode] [unused] :[username]
-  - nickname uniq olmaki buyuzden daha once alinmadigini kontrol eder
-  - mode ve unused degerlerini kullnmadik
-  - username iki noktadan sonra ise birden fazla kelime olabilir
-- PASS [password]
-  - server baslatilirken belirlenen sifre ile giris yapar
-  - kullanci daha once giris yapmis mi kontrol eder
-
-#### Eger kullanici login olabilmisse bu komutlari kullanbilir
-
-- JOIN [#channel]
-  - eger channel yoksa olusturuyor
-  - channel varsa ve client daha once eklenmediyse ekliyor
-- PRIVMSG [#channel] [mesaj]
-  - eger kullanici channelda ekli degilse mesaj gondermez
-- PRIVMSG [nickname] [mesaj]
-  - nickname ile eslesen kullanici yoksa hata mesaji doner
-- PRIVMSG [#channel] :[birden fazla bosluklu mesaj]
-  - iki nokta eklenirse bosluklu mesajlar gonderilir
-- NICK [nickname]
-  - clientin nicknameini degistirebilmesi saglar
-  - login olmadan kullanilabir
-  - nicknamein daha once alinip alinmadigini kontrol eder
-- TOPIC [#channel] [topic]
-  - Channel in topic mesajini set eder
-  - userin channel a katilmis olmasi gerekli
-  - userin operator olmasi gerekli
-  - topic degistiginde tum channel uyelerine mesaj gider
-- KICK [#channel] [nickname] :[reason]
-  - eger komutu yazan kisi operator ise kisiyi kanaldan atar
-  - kanalin varligini kullanicinin bulunup bulunmadigini kontrol eder
-- MODE [#channel] [+/-][o/k/i/t/l] [parameter]
-  - Channel operatorleri tarafindan kullanilabilir
-  - +o [nickname] ile kullaniciya operator yetkisi verilir
-  - -o [nickname] ile kullanicinin operator yetkisi alinir
-  - 
-  - +k [key] ile channel a sifre konulur
-  - -k ile channel in sifresi kaldirilir
-  - 
-  - +i ile channel invite-only olur
-  - -i ile channel invite-only olmaktan cikar
-  - 
-  - +t ile sadece operatorler topic degistirebilir
-  - -t ile tum kullanicilar topic degistirebilir
-  - 
-  - +l [limit] ile channel a kullanici limiti konulur
-  - -l ile channel in kullanici limiti kaldirilir
-  - 
-  - kullanicinin channel da olmasi ve operator olmasi gerekir
-  - tum channel uyelerine mode degisikligi mesaji gider
-- INVITE [nickname] [#channel]
-  - Channel operatorleri tarafindan kullanilabilir
-  - Invite edilen kullanicinin server da olmasi gerekir
-  - Invite eden kisinin channel da olmasi ve operator olmasi gerekir
-  - Invite edilen kullanici channel da degilse invite edilir
-  - Invite edilen kullanici channel a katilabilir
-  - Invite edilen kullanici channel a katilmak icin JOIN komutunu kullanmalidir
-
-
-- HELP veya help
-  - client a serverda rehber olacak komutlarin nasil kullanildigini vs. aciklayacak
-  - kvirc kucuk harfle gonderiyor servera 
-
----
-<br>
-
-# IRC  - Server Setup and Connection
-![img](https://github.com/user-attachments/assets/e9b69897-c5b7-44c7-a986-1480c4925ffd)
-
-This project develops an IRC application using C++. The following sections provide detailed information on setting up the server, making connections, and using sockets.
-
-## Server Address Configuration
-
-To run the server, the necessary configuration is made using the `sockaddr_in` structure, which represents IPv4 addresses and contains the address information required for creating a socket or listening socket.
-
-### sockaddr_in Structure
-
-```cpp
-struct sockaddr_in {
-    short            sin_family;   // Address family (AF_INET/AF_INET6)
-    unsigned short   sin_port;     // Port number (converted using htons())
-    struct in_addr   sin_addr;     // IP address (e.g., INADDR_ANY)
-    char             sin_zero[8];  // Padding for alignment
-};
-```
-
-### Structure Members:
-
-- **sin_family**: Specifies the address family (use `AF_INET` for IPv4).
-- **sin_port**: Sets the port number to listen on. The port number is converted to network byte order using `htons()`.
-- **sin_addr**: Represents the IP address. If set to `INADDR_ANY`, it listens on all available IP addresses.
-- **sin_zero**: Padding added to align the structure to the appropriate size.
-
-### Creating a Socket
-
-The `socket()` function is used to create a socket in your server application:
-
-```cpp
-int sock = socket(AF_INET, SOCK_STREAM, 0);
-if (sock < 0) {
-    std::cerr << "Socket creation failed" << std::endl;
-    return -1;
-}
-```
-
-#### `socket()` Function:
-
-- **AF_INET**: Specifies the IPv4 address family.
-- **SOCK_STREAM**: Indicates the TCP protocol, providing reliable, connection-oriented data transmission.
-- **0**: Protocol number. When set to `0`, the default protocol (TCP for `SOCK_STREAM`) is automatically chosen.
-
-If the socket creation fails, the `socket()` function will return `-1`.
-
-### Configuring the Server Address
-
-To configure the server's IP address and port, use the following code:
-
-```cpp
-struct sockaddr_in serv_addr;
-serv_addr.sin_family = AF_INET;                          // IPv4 protocol
-serv_addr.sin_port = htons(8080);                         // Convert the port number to network byte order
-serv_addr.sin_addr.s_addr = inet_addr("192.168.1.1");     // Specified IP address
-```
-
-### Why Use `htons()`?
-
-The `htons()` function is used to convert the port number from the host byte order (little-endian) to the network byte order (big-endian). This conversion is necessary because networks use big-endian format for data transmission.
-
-### Listening on All IP Addresses
-
-If you want the server to accept connections from any available IP address, you can set `sin_addr.s_addr` to `INADDR_ANY`:
-
-```cpp
-serv_addr.sin_addr.s_addr = INADDR_ANY;  // Listen on all connected IP addresses
-```
-
-This allows the server to accept connections from any IP address.
+Soketler, istemci ve sunucu arasında bir iletişim cihazı veya etkileşim olarak kullanılır. İstemciden bilgi alır ve istemciye bilgi gönderir ve verileri aldıktan sonra bağlantısını keser.
 
 ---
 
-## Key Functions and Concepts
+## `*sockaddr_in Yapısı ve IPv4 Kullanımı*`
 
-### `setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))`
-- **SO_REUSEADDR**: This option allows the socket to reuse a port that is already in use, which is useful when the server is restarted or if there is an error that causes the socket to close unexpectedly.
-- **sockfd**: The socket descriptor obtained after calling `socket()`.
-- **SOL_SOCKET**: Specifies that the option is set at the socket level.
-- **SO_REUSEADDR**: The option to allow port reuse.
-- **&opt**: A pointer to the option value (1 in this case, meaning the option is enabled).
-- **sizeof(opt)**: Specifies the size of the `opt` variable.
+`sockaddr_in` yapısı bir IPv4 adresini ve port numarasını temsil etmek için kullanılır. Bu yapı genellikle bir soket adresini belirtmek için `bind()`, `connect()`, `sendto()` ve `recvfrom()` gibi sistem çağrılarında kullanılır.
 
-### `bind(server_fd, (struct sockaddr *)&address, sizeof(address))`
-- The `bind()` function binds a socket to a specific IP address and port.
-- `server_fd`: The socket file descriptor.
-- `address`: A structure holding the server's IP and port.
-- `addrlen`: The length of the address structure.
-- Example address setup:
-  ```cpp
-  address.sin_family = AF_INET;
-  address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons(PORT);
-  ```
+- `AF_INET` değeri, IPv4 adreslerini belirtmek için kullanılır.
+- Eğer IPv6 adresleri kullanılacaksa `AF_INET6` değeri kullanılır.
 
-### `listen(server_fd, 3)`
-- The `listen()` function prepares the server socket to accept incoming connections. 
-- The second argument (`3`) specifies the maximum number of connections that can be queued before the server starts accepting them.
+Bu ayar, soketin hangi protokol ailesini kullanacağını sistemin bilmesini sağlar.
 
-### `accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)`
-- The `accept()` function accepts an incoming connection from a client.
-- Returns a new socket file descriptor (`new_socket`) that is used for communication with the client.
-- `address`: The client's IP and port information.
-- `addrlen`: The length of the address structure, which is updated upon return.
+`*Byte Sıralama (Endianness) ve htons() Fonksiyonu*`
 
-### Client-Server Communication Loop
+Bilgisayar sistemlerinde iki farklı byte sıralama yöntemi vardır:
+
+1. **Big-endian** (Büyük endian): En anlamlı byte önce gelir.
+2. **Little-endian** (Küçük endian): En anlamlı byte sonra gelir.
+
+The htons() function translates a short integer from host byte order to network byte order.
+
+- `INADDR_ANY` kullanıldığında, soket tüm mevcut ağ arayüzlerinden (tüm IP adreslerinden) gelen bağlantıları kabul eder.
+- Eğer belirli bir IP adresine bağlanmak isterseniz, `inet_addr()` veya `inet_pton()` fonksiyonlarını kullanarak IP adresini atayabilirsiniz:
+
 ```cpp
-while (true) {
-    memset(buffer, 0, BUFFER_SIZE);
-    int bytes_read = read(new_socket, buffer, BUFFER_SIZE);
-    if (bytes_read <= 0) break;
-    std::cout << "Message from client: " << buffer;
-    send(new_socket, buffer, strlen(buffer), 0);
-}
-```
-- **read(new_socket, buffer, BUFFER_SIZE)**: Reads data sent by the client into the `buffer`. If no data is received or the client disconnects, the loop ends.
-- **send(new_socket, buffer, strlen(buffer), 0)**: Echoes the received message back to the client.
-
-### `fd_set` and `select()`
-- **fd_set**: A data structure used to store a collection of file descriptors (sockets) that can be monitored for readiness (e.g., readability, writability, or errors).
-- **FD_ZERO()**: Clears all file descriptors in the `fd_set`.
-- **FD_SET()**: Adds a file descriptor to the `fd_set`.
-- **FD_CLR()**: Removes a file descriptor from the `fd_set`.
-- **FD_ISSET()**: Checks if a file descriptor is ready for reading, writing, or has an error.
-
-#### Example of using `select()`:
-```cpp
-fd_set readfds;
-FD_ZERO(&readfds);
-FD_SET(sockfd, &readfds);
-
-struct timeval timeout;
-timeout.tv_sec = 5;
-timeout.tv_usec = 0;
-
-int activity = select(MAX_FDS, &readfds, NULL, NULL, &timeout);
-if (activity == -1) {
-    std::cerr << "select() error" << std::endl;
-} else if (activity == 0) {
-    std::cout << "Timeout occurred, no data to read" << std::endl;
-} else {
-    if (FD_ISSET(sockfd, &readfds)) {
-        std::cout << "Data is available to read on sockfd" << std::endl;
-    }
-}
+server_addr.sin_family = AF_INET;         // IPv4
+server_addr.sin_port = htons(port);       // Port
+server_addr.sin_addr.s_addr = INADDR_ANY; 
 ```
 
-### Accepting New Connections
-```cpp
-if (FD_ISSET(sockfd, &tmpfds)) {
-    new_socket = accept(sockfd, NULL, NULL);
-    if (new_socket < 0)
-        perr("accept error failed", sockfd);
-    else {
-        std::cout << "Connection accepted" << std::endl;
-        FD_SET(new_socket, &readfds);
-        if (new_socket > max_sd)
-            max_sd = new_socket;
-        connected_clients.push_back(new_socket);
-    }
-}
-```
-- **FD_SET(new_socket, &readfds)**: Adds the new socket to the set for monitoring.
-- **max_sd**: Keeps track of the highest file descriptor, which is used by `select()` to monitor multiple file descriptors.
-- **connected_clients.push_back(new_socket)**: Adds the new client socket to the list of connected clients.
+---
 
-### Receiving Data with `recv()`
-```cpp
-int valread = recv(connected_clients[i], buffer, sizeof(buffer), 0);
-```
-- **recv()**: Receives data from a socket.
-- Returns the number of bytes read, `0` if the client closes the connection, or a negative value if there is an error.
-  - **sockfd**: The socket file descriptor.
-  - **buf**: The buffer to store the received data.
-  - **len**: The maximum number of bytes to read.
-  - **flags**: Usually set to `0` for normal data reception.
+## **`*Soket Oluşturma (socket())*`**
 
+- `socket()` fonksiyonu bir soket oluşturur.
+- `AF_INET`: IPv4 protokol ailesini belirtir.
+- `SOCK_STREAM`: TCP protokolünü kullanacağımızı belirtir.
+- TCP  SOCK_STREAM, UDP ise SOCK_DGRAM kullanır.
+
+`*TCP (SOCK_STREAM) vs UDP (SOCK_DGRAM)*`
+
+- **TCP**: Bağlantılı, güvenilir, hata kontrolü var, veri sıralı, daha yavaş (Örn: HTTP, FTP, SSH).
+- **UDP**: Bağlantısız, hızlı, güvenilir değil, paket sırası karışabilir (Örn: DNS, VoIP, online oyunlar).
+- `0`: Varsayılan protokol (TCP) kullanılır.
+
+Eğer `socket()` fonksiyonu -1 dönerse, soket oluşturma başarısız olmuştur.
+
+- `SOCK_STREAM` için varsayılan protokol **TCP (`IPPROTO_TCP`)**'dir.
+- `SOCK_DGRAM` için varsayılan protokol **UDP (`IPPROTO_UDP`)**'dir.
+- `0`: Varsayılan protokolü kullanır (TCP için `IPPROTO_TCP`, UDP için `IPPROTO_UDP`).
+- `IPPROTO_TCP`: TCP protokolünü kullanır.
+- `IPPROTO_UDP`: UDP protokolünü kullanır.
+- `IPPROTO_SCTP`: SCTP (Stream Control Transmission Protocol) protokolünü kullanır.
+- `IPPROTO_RAW`: Ham soket (Raw socket) kullanır.
+
+```cpp
+sockfd = socket(AF_INET, SOCK_STREAM, 0);
+int sockfd = socket(int domain, int type, int protocol);
+
+```
+
+---
+
+## **`*Soket Ayarlarını Değiştirme (setsockopt())*`**
+
+- `setsockopt()` fonksiyonu, soketin özelliklerini değiştirmek için kullanılır.
+- `SO_REUSEADDR`, program sonlandıktan sonra bağlantının hemen tekrar kullanılmasını sağlar.
+- Eğer `SO_REUSEADDR` **ayarlanmazsa**, aynı port hemen tekrar kullanılamaz.
+- Eğer `SO_REUSEADDR` **ayarlanırsa**, aynı port başka bir program tarafından hemen kullanılabilir.
+- Kodda görülen **`opt` değişkeni**, `SO_REUSEADDR` seçeneğinin etkin olup olmadığını belirleyen bir **tam sayı değişkenidir**.
+- 
+- **`setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))`**, belirli bir portun önceki bağlantılardan dolayı bloke olmasını engellemek için kullanılır.
+- `opt` değişkeni, `1` olarak ayarlandığında bu özellik etkin olur.
+- Özellikle **sunucu programlarında** ve **UDP uygulamalarında** kullanışlıdır.
+- `SO_REUSEADDR`, `SO_REUSEPORT` ile karıştırılmamalıdır; ilki eski bağlantıları temizlerken, ikincisi yük dengeleme sağlar.
+
+Başarısız olursa hata mesajı yazdırılmalıdır.
+
+```jsx
+setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0
+```
+
+```cpp
+int setsockopt(int sockfd, int level, int optname, const void *optval, socklen_t optlen);
+
+```
+
+---
+
+## **`*Soketi Bir IP ve Porta Bağlama (bind())*`**
+
+- `bind()` fonksiyonu, soketi belirli bir IP adresi ve porta bağlamak için kullanılır.
+- `server_addr`, `sockaddr_in` yapısından türetilmiş bir adres yapısıdır.
+
+| `sockfd` | Bağlanacak soketin dosya tanıtıcısı (file descriptor). |
+| --- | --- |
+
+| `addr` | Bağlanacak adres bilgisini içeren yapı (`struct sockaddr`). |
+| --- | --- |
+
+| `addrlen` | `addr` yapısının boyutu (`sizeof(server_addr)`). |
+| --- | --- |
+
+`bind()` başarısız olursa, genellikle **port kullanılıyor (`EADDRINUSE`)** veya **IP adresi hatalı (`EADDRNOTAVAIL`)** olabilir.
+
+Eğer `bind()` başarısız olursa, portun kullanımda olup olmadığı kontrol edilmelidir.
+
+```jsx
+bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0
+```
+
+---
+
+## **`*listen() Fonksiyonu ve Bağlantı Kuyruğu*`**
+
+- `listen()` fonksiyonu, bir **TCP sunucu soketini** **pasif moda** alarak, **bağlantı taleplerini dinlemeye başlamasını** sağlar.
+- `3`: Bağlantı kuyruğundaki maksimum bekleyen istemci sayısı.
+
+Başarısız olursa hata mesajı yazdırılmalıdır.
+
+Eğer başarılı olursa `0` döner, başarısız olursa `-1` döner ve `errno` değişkeni ayarlanır.
+
+**Sadece TCP (SOCK_STREAM) soketleri için geçerlidir**. UDP soketleri bağlantısız olduğu için `listen()` kullanılmaz
+
+Gelen bağlantılar **bir kuyruğa (backlog)** alınır ve `accept()` fonksiyonu çağrılana kadar bekletilir.
+
+- **`bind()` çağrısı olmadan `listen()` kullanılamaz**. Soket önce bir IP adresine ve porta bağlanmalıdır.
+- **`accept()` çağrılmadan `listen()` tek başına yeterli değildir**. `accept()` fonksiyonu kuyruğa alınan bağlantıları işlemek için kullanılır.
+- 
+
+Bir istemci, `connect()` fonksiyonunu çağırdığında:
+
+1. Bağlantı **kuyruğa alınır** (`listen()` çağrısında belirtilen `backlog` değerine göre).
+2. **Sunucu `accept()` çağırana kadar** istemci bekler.
+3. Sunucu **`accept()` çağırdığında**, en eski bağlantıyı kabul eder.
+4. Eğer kuyruk **doluysa**, yeni gelen bağlantılar **reddedilebilir**.
+
+SOMAXCONN→arastır
+
+```jsx
+listen(sockfd, 3) < 0
+int listen(int sockfd, int backlog);
+
+```
+
+---
+
+## **`*fd_set Yapısı ve Kullanımı*`**
+
+`fd_set`, bir dizi dosya tanıtıcısını (file descriptor - fd) temsil eden bir veri yapısıdır. `select()` sistem çağrısında, hangi dosya tanıtıcılarının giriş, çıkış veya hata durumları için izleneceğini belirtmek için kullanılır.
+
+Linux ve POSIX sistemlerinde, birden fazla dosya tanıtıcısını tek bir sistem çağrısı ile izlemek için `fd_set` yapısı aşağıdaki makrolarla kullanılır:
+
+- `FD_ZERO(fd_set *set)`: `fd_set` yapısını sıfırlar, yani tüm bitleri temizler.
+- `FD_SET(int fd, fd_set *set)`: Belirtilen dosya tanıtıcısını `fd_set` içine ekler.
+- `FD_CLR(int fd, fd_set *set)`: Belirtilen dosya tanıtıcısını `fd_set` içinden çıkarır.
+- `FD_ISSET(int fd, fd_set *set)`: Belirtilen dosya tanıtıcısının `fd_set` içinde olup olmadığını kontrol eder.
+
+**`FD_SET(sockfd, &read_fds);`** 
+
+Bu satır, belirtilen dosya tanıtıcısını (`sockfd`), `fd_set` içerisine ekler. Böylece, `select()` çağrısı sırasında bu soketin okunabilir olup olmadığı kontrol edilir.
+
+- `FD_ZERO()`: `fd_set` yapısını temizler.
+- `FD_SET()`: Soket dosya tanıtıcısını `fd_set` içine ekler.
+- Bağlantıları izlemek için `select()` kullanılır.
+    
+    ```cpp
+    FD_ZERO(&read_fds);        
+    FD_SET(sockfd, &read_fds);
+    fd_set active_fds = read_fds;
+    ```
+    
+
+---
+
+## **`*select() Fonksiyonu ve Kullanımı*`**
+
+`select()` fonksiyonu, birden fazla dosya tanıtıcısını (file descriptor - fd) izlemek için kullanılan bir sistem çağrısıdır. Birden fazla giriş/çıkış kaynağını aynı anda dinleyerek, hangisinin hazır olduğunu belirleyebilir.
+
+- `select()`, belirli soketlerde aktivite olup olmadığını kontrol eder.
+- `max_fd + 1`: En büyük dosya tanıtıcısını belirtir.
+- `NULL`: Yazma ve hata kontrol listeleri boş bırakılmıştır.
+- `NULL`: Zaman aşımı beklenmez, sonsuza kadar bekler.
+
+Bağlantı varsa, `activity` 0'dan farklı bir değer alır.
+
+`*Parametreler*`
+
+- `nfds`: İzlenecek en büyük dosya tanıtıcısının değeri + 1 olarak ayarlanmalıdır.
+- `readfds`: Okuma işlemi için izlenecek dosya tanıtıcılarını içeren `fd_set` yapısı.
+- `writefds`: Yazma işlemi için izlenecek dosya tanıtıcılarını içeren `fd_set` yapısı.
+- `exceptfds`: Hata durumlarını izlemek için kullanılan `fd_set` yapısı.
+- `timeout`: `select()` fonksiyonunun bekleme süresini belirler. `NULL` verilirse süresiz bekler.
+
+Fonksiyon, izlenen dosya tanıtıcılarından en az biri belirtilen işlem için hazır olduğunda döner.
+
+`*Dönüş Değerleri*`
+
+- **Pozitif sayı**: Hazır dosya tanıtıcılarının sayısını döndürür.
+- **0**: Hiçbir dosya tanıtıcısı belirtilen süre içinde hazır olmadı.
+- **1**: Hata oluştu, `errno` değişkenine hata kodu atanır.
+
+`*select() Kullanımına Alternatifler*`
+
+1. **`poll()`**: Daha fazla özellik sunar ancak aynı temel mantığa sahiptir.
+2. **`epoll()`**: Linux sistemlerinde daha verimli bir alternatif olarak kullanılır.
+
+```jsx
+int activity = select(max_fd + 1, &active_fds, NULL, NULL, NULL);
+int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+```
+
+---
+
+- `FD_ISSET()`, belirli bir soketin aktif olup olmadığını kontrol eder.
+
+```jsx
+FD_ISSET(sockfd, &active_fds)
+```
+
+- `FD_SET()`, yeni istemci soketini `fd_set` içine ekler.
+
+Bağlantı kabul edildikten sonra istemci ile veri alışverişi yapılabilir.
+
+```jsx
+FD_SET(client_sockfd, &read_fds);
+```
+
+---
+
+## **`*accept() Fonksiyonu ve Kullanımı*`**
+
+- `accept()`, gelen bir istemci bağlantısını kabul eder ve yeni bir soket döndürür.
+
+| `sockfd` | Sunucu tarafında oluşturulmuş ve `listen()` ile dinleme moduna geçirilmiş soketin dosya tanıtıcısı. |
+| --- | --- |
+| `addr` | Bağlantı kurulan istemcinin adresini tutacak `struct sockaddr` türünde bir gösterici. |
+| `addrlen` | `addr` yapısının boyutunu belirten bir değişkenin adresi. |
+
+Eğer istemcinin adres bilgisine ihtiyacınız yoksa, `addr` ve `addrlen` parametreleri `NULL` olarak verilebilir.
+
+```jsx
+accept(sockfd, NULL, NULL)
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+
+```
