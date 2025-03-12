@@ -39,27 +39,25 @@ Server::~Server() {}
 
 void Server::startServer()
 {
-    server_addr.sin_family = AF_INET;         // IPv4
-    server_addr.sin_port = htons(port);       // Port
-    server_addr.sin_addr.s_addr = INADDR_ANY; // Any IP
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(port);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0); // TCP socket creation (SOCK_STREAM) and IPv4 (AF_INET) protocol (0)
-    if (sockfd < 0)                           // If socket creation fails
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0)
     {
         close(sockfd);
         std::cout << "Socket KO" << std::endl;
         exit(1);
     }
     int opt = 1;
-    // Attempt to set the socket option SO_REUSEADDR to allow the socket to be bound to an address that is already in use.
-    // If setsockopt fails, close the socket, print an error message, and exit the program.
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
     {
         close(sockfd);
         std::cout << "Setsockopt KO" << std::endl;
         exit(1);
     }
-    if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) // Bind the socket to the address and port specified in server_addr
+    if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         close(sockfd);
         std::cout << "Bind KO" << std::endl;
@@ -67,7 +65,7 @@ void Server::startServer()
     }
     else
         std::cout << "Bind OK" << std::endl;
-    if (listen(sockfd, 3) < 0) // Listen for incoming connections on the socket with a maximum queue length of 3
+    if (listen(sockfd, 3) < 0)
     {
         close(sockfd);
         std::cout << "Listen KO" << std::endl;
@@ -75,8 +73,8 @@ void Server::startServer()
     }
     else
         std::cout << "Listen OK" << std::endl;
-    FD_ZERO(&read_fds);        // Clear the read_fds set
-    FD_SET(sockfd, &read_fds); // Add the sockfd to the read_fds set
+    FD_ZERO(&read_fds);
+    FD_SET(sockfd, &read_fds);
 }
 
 void Server::loopProgram()
@@ -84,8 +82,8 @@ void Server::loopProgram()
     while (1)
     {
         fd_set active_fds = read_fds;
-        select(max_fd + 1, &active_fds, NULL, NULL, NULL); // Wait for activity on the sockets in the read_fds set
-        if (FD_ISSET(sockfd, &active_fds))                 // If the sockfd is in the active_fds set, a new client is trying to connect to the server and the server should accept the connection.
+        select(max_fd + 1, &active_fds, NULL, NULL, NULL);
+        if (FD_ISSET(sockfd, &active_fds))
         {
             int client_sockfd = accept(sockfd, NULL, NULL);
             if (client_sockfd < 0)
@@ -108,18 +106,18 @@ void Server::loopProgram()
 
         int bytes_received;
         std::vector<char> buffer(1024, 0);
-        for (size_t client_index = 0; client_index < connected_clients.size(); /* artırma operatörünü kaldırdık */)
+        for (size_t client_index = 0; client_index < connected_clients.size();)
         {
             if (FD_ISSET(connected_clients[client_index], &active_fds))
             {
                 bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0);
 
                 printServer();
-                checkCommands(buffer);
+                // checkCommands(buffer);
                 printAllInputs();
-                executeCommand(client_index);
+                // executeCommand(client_index);
                 printAllClients();
-                logControl(client_index);
+                // logControl(client_index);
 
                 for (size_t i = 0; i < channels.size(); ++i)
                 {
@@ -134,33 +132,46 @@ void Server::loopProgram()
                 }
                 else if (bytes_received == 0)
                 {
-                    std::cout << "index:" << client_index << std::endl;
-                    std::cout << "Client disconnected" << std::endl;
+                    std::cout << clients[client_index].getNickname() << ": Client Disconnected" << std::endl;
 
-                    // Önce soket dosya tanımlayıcısını kapatıyoruz
                     close(connected_clients[client_index]);
 
-                    // Client nesnesini ve soket tanımlayıcısını senkronize olarak siliyoruz
                     clients.erase(clients.begin() + client_index);
-                    FD_CLR(connected_clients[client_index], &read_fds); // read_fds kümesinden de kaldırıyoruz
+                    FD_CLR(connected_clients[client_index], &read_fds);
                     connected_clients.erase(connected_clients.begin() + client_index);
-
-                    // client_index artırılmıyor çünkü yeni eleman şimdi bu indekste
-                    // böylece hiçbir client atlanmaz
                 }
-                else
+                else if (bytes_received > 0)
                 {
-                    logControl(client_index);
-                    std::cout << "Received: " << buffer.data() << std::endl;
+                    std::string received_data(buffer.data(), bytes_received);
+                
+                    // İLGİLİ CLIENT'IN BUFFER'INA EKLE
+                    clients[client_index].appendToCommandBuffer(received_data);
+                
+                    // Eğer komut tamamlanmışsa (örn: \n veya \r\n ile bitiyorsa)
+                    std::string& client_buffer = clients[client_index].getCommandBuffer();
+                
+                    size_t pos;
+                    // Birden fazla komut varsa, hepsini sırayla al
+                    while ((pos = client_buffer.find("\n")) != std::string::npos)
+                    {
+                        std::string full_command = client_buffer.substr(0, pos);
+                        if (!full_command.empty() && full_command.back() == '\r')
+                            full_command.pop_back(); // '\r' varsa temizle
+                
+                        // Komutun tamamı alındı, işleyelim
+                        handleCommand(client_index, full_command);
+                
+                        // Buffer'dan işlenen kısmı çıkar
+                        client_buffer.erase(0, pos + 1);
+                    }
+                
                     memset(buffer.data(), 0, buffer.size());
-
-                    // Sadece normal durumda client_index artırılır
                     client_index++;
                 }
+                
             }
             else
             {
-                // Hiçbir aktivite yoksa, bir sonraki client'a geç
                 client_index++;
             }
         }
@@ -169,7 +180,6 @@ void Server::loopProgram()
 
 void Server::logControl(size_t client_index)
 {
-
     if (clients[client_index].getPassword() != "" &&
         clients[client_index].getUsername() != "" &&
         clients[client_index].getNickname() != "" &&
@@ -183,10 +193,8 @@ void Server::logControl(size_t client_index)
 
 void Server::checkCommands(std::vector<char> &buffer)
 {
-    // Null karakterleri kaldırarak temiz bir string oluştur
     std::string buffer_string(buffer.data(), buffer.size());
 
-    // Sondaki gereksiz '\r' ve '\n' karakterlerini temizle
     while (!buffer_string.empty() && (buffer_string.back() == '\r' || buffer_string.back() == '\n' || buffer_string.back() == '\0'))
     {
         buffer_string.pop_back();
@@ -198,17 +206,14 @@ void Server::checkCommands(std::vector<char> &buffer)
     bool realname_started = false;
     std::string realname;
 
-    // Kelimeleri boşluklara göre ayır
     while (iss >> token)
     {
         if (realname_started)
         {
-            // `:` ile başlayan kısımdan sonra her şeyi tek bir string olarak al
             realname += (realname.empty() ? "" : " ") + token;
         }
         else if (token[0] == ':')
         {
-            // `:` ile başlayan kısmı `realname` olarak belirle
             realname_started = true;
             realname = token.substr(1);
         }
@@ -263,4 +268,31 @@ void Server::executeCommand(size_t c_index)
     }
 
     this->input.clear();
+}
+
+
+
+void Server::handleCommand(size_t client_index, const std::string& command)
+{
+    std::cout << "Command from client " << client_index << ": " << command << std::endl;
+    
+    // Komutu parçala
+    std::vector<char> command_vector(command.begin(), command.end());
+
+    // Zaten mevcut olan parsing ve execute işlemine yönlendir
+    checkCommands(command_vector);
+    executeCommand(client_index);
+    logControl(client_index);
+
+}
+
+
+bool Server::isClientExist(std::string nickName)
+{
+	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+	{
+		if (nickName == it->getNickname())
+			return (true);
+	}
+	return (false);
 }
