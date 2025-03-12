@@ -13,7 +13,7 @@ void Server::topic(size_t client_index)
     if (input.size() < 3)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Not enough parameters\r\n");
-        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Useage TOPIC <channel> <topic>\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Usage TOPIC <channel> <topic>\r\n");
         return;
     }
 

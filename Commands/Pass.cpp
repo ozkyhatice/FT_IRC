@@ -6,7 +6,7 @@ void Server::pass(size_t client_index)
 	{
 		if (input.size() != 2)
 		{
-			this->clients[client_index].message("461 Not enough parameters\r\n");
+			this->clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " :Not enough parameters\r\n");
 			return;
 		}
 		else
@@ -18,16 +18,16 @@ void Server::pass(size_t client_index)
 			if (input[1] == this->password)
 			{
 				this->clients[client_index].setPassword(input[1]);
-				this->clients[client_index].message("001 Password accepted\r\n");
+				this->clients[client_index].message(":server 001 " + clients[client_index].getNickname() + " :Password accepted\r\n");
 			}
 			else
 			{
-				this->clients[client_index].message("464 Password incorrect\r\n");
+				this->clients[client_index].message(":server 464 " + clients[client_index].getNickname() + " :Password incorrect\r\n");
 			}
 		}
 	}
 	else
 	{
-		this->clients[client_index].message("462 You already registered\r\n");
+		this->clients[client_index].message(":server 462 " + clients[client_index].getNickname() + " :You already registered\r\n");
 	}
 }

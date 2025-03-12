@@ -14,7 +14,7 @@ void Server::privmsg(size_t client_index)
     if (input.size() < 3)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " PRIVMSG :Not enough parameters\r\n");
-        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " PRIVMSG :Useage PRIVMSG <target> <message>\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " PRIVMSG :Usage PRIVMSG <target> <message>\r\n");
         return;
     }
 
