@@ -3,6 +3,14 @@
 
 void Server::join(size_t client_index)
 {
+    std::cout << "Input received from client " << client_index << ":" << std::endl;
+    for (size_t i = 0; i < input.size(); i++)
+    {
+        std::cout << "input[" << i << "]: " << input[i] << std::endl;
+    }
+    std::cout << "Total number of inputs: " << input.size() << std::endl;
+
+
     // Check if client is connected
     if (!clients[client_index].getConnected())
     {
@@ -14,15 +22,23 @@ void Server::join(size_t client_index)
     if (input.size() < 2)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Not enough parameters\r\n");
-        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Useage JOIN <channel> [key]\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Usage JOIN <channel> [key]\r\n");
         return;
     }
 
     std::string channel_name = input[1];
-    std::string key = "";
-    if (input.size() > 2)
+    std::string key;
+    
+    // Check if key parameter is provided (3rd parameter)
+    if (input.size() == 3)
     {
         key = input[2];
+    }
+    else if (input.size() > 3)
+    {
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Too many parameters\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Usage JOIN <channel> [key]\r\n");
+        return;
     }
 
     // Check if channel name starts with '#'
@@ -94,6 +110,15 @@ void Server::join(size_t client_index)
     Channel new_channel(channel_name, "");
     new_channel.addClient(clients[client_index]);
     new_channel.addOperator(clients[client_index]); // First user becomes operator
+    
+    // Set channel key if provided
+    if (!key.empty())
+    {
+        std::cout << "Setting key for channel " << channel_name << ": " << key << std::endl;
+        new_channel.setKey(key);
+        new_channel.setChannelKey(true);
+    }
+    
     channels.push_back(new_channel);
 
     std::string join_message = ":" + clients[client_index].getNickname() + "!" + 

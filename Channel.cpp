@@ -1,8 +1,8 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string topic): _name(name), _topic(topic){}
+Channel::Channel(std::string name, std::string topic): _name(name), _topic(topic), inviteOnly(false), topicProtection(false), channelKey(false), channelLimit(false), _key(""), _limit(0) {}
 
-Channel::Channel(Channel const &channel): _name(channel._name), _topic(channel._topic), _clients(channel._clients), _operators(channel._operators){}
+Channel::Channel(Channel const &channel): _name(channel._name), _topic(channel._topic), _clients(channel._clients), _operators(channel._operators), inviteOnly(channel.inviteOnly), topicProtection(channel.topicProtection), channelKey(channel.channelKey), channelLimit(channel.channelLimit), _key(channel._key), _limit(channel._limit) {}
 
 Channel &Channel::operator=(Channel const &channel){
     if (this != &channel){
@@ -10,6 +10,12 @@ Channel &Channel::operator=(Channel const &channel){
         _topic = channel._topic;
         _clients = channel._clients;
         _operators = channel._operators;
+        inviteOnly = channel.inviteOnly;
+        topicProtection = channel.topicProtection;
+        channelKey = channel.channelKey;
+        channelLimit = channel.channelLimit;
+        _key = channel._key;
+        _limit = channel._limit;
     }
     return *this;
 }

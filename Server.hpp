@@ -32,6 +32,8 @@ private:
     std::vector<std::string> input;
     typedef void(Server::*fpoint)(size_t);
 
+
+
 public:
     Server(int port, std::string password);
     Server(Server const &server);
@@ -64,6 +66,10 @@ public:
     void printAllClients();
     void printAllInputs();
     void printServer();
+    void removeClientFromChannels(size_t client_index);
+
+    void handleCommand(size_t client_index, const std::string& command);
+
 };
 
 #endif

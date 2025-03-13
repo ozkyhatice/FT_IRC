@@ -14,7 +14,7 @@ void Server::mode(size_t client_index)
     if (input.size() < 3)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
-        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> <mode> [parameter]\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> <mode> [parameter]\r\n");
         return;
     }
 
@@ -63,7 +63,7 @@ void Server::mode(size_t client_index)
                 if (parameter.empty())
                 {
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
-                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> +o <nickname>\r\n");
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> +o <nickname>\r\n");
                     return;
                 }
 
@@ -88,7 +88,7 @@ void Server::mode(size_t client_index)
                 if (parameter.empty())
                 {
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
-                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> -o <nickname>\r\n");
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> -o <nickname>\r\n");
                     return;
                 }
 
@@ -108,7 +108,7 @@ void Server::mode(size_t client_index)
                 if (parameter.empty())
                 {
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
-                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> +k <key>\r\n");
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> +k <key>\r\n");
                     return;
                 }
 
@@ -147,7 +147,7 @@ void Server::mode(size_t client_index)
                 if (parameter.empty())
                 {
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
-                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Useage MODE <channel> +l <limit>\r\n");
+                    clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> +l <limit>\r\n");
                     return;
                 }
                 it->setLimit(std::atoi(parameter.c_str()));
