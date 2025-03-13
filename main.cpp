@@ -2,11 +2,16 @@
 #include <limits>
 #include <stdexcept>
 
+Server* g_server = NULL;
+
 void signalHandler(int code)
 {
 	std::cout << "Signal " << code << " caught!" << std::endl;
-
-    
+	if (g_server)
+	{
+		delete g_server;
+		g_server = NULL;
+	}
 	exit(0);
 }
 
@@ -57,10 +62,16 @@ int main(int ac, char **av)
 
 	try
 	{
-		Server server(std::stoi(av[1]), av[2]);
+		g_server = new Server(std::stoi(av[1]), av[2]);
+		g_server->loopProgram();  // Start the server loop
 	}
 	catch(const std::exception& e)
 	{
+		if (g_server)
+		{
+			delete g_server;
+			g_server = NULL;
+		}
 		std::cerr << "Error: " << e.what() << std::endl;
 		return 1;
 	}

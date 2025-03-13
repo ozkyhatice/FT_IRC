@@ -2,12 +2,10 @@
 #include "Channel.hpp"
 #include <sstream>
 
-Server::Server(int port, std::string password) : port(port), password(password)
+Server::Server(int port, std::string password) : port(port), password(password), running(false)
 {
-    
     startServer();
     max_fd = sockfd;
-    loopProgram();
 }
 
 Server::Server(Server const &server)
@@ -36,7 +34,22 @@ Server &Server::operator=(Server const &server)
     return *this;
 }
 
-Server::~Server() {}
+Server::~Server() {
+    std::cout << "Server destructor called" << std::endl;
+    running = false;  // Stop the loop
+    close(sockfd);    // Close the server socket
+    
+    // Close all client sockets
+    for (size_t i = 0; i < connected_clients.size(); ++i) {
+        close(connected_clients[i]);
+    }
+    
+    // Clear all data structures
+    clients.clear();
+    channels.clear();
+    connected_clients.clear();
+}
+
 void Server::removeClientFromChannels(size_t client_index)
 {
     Client& client = clients[client_index];
@@ -60,8 +73,6 @@ void Server::removeClientFromChannels(size_t client_index)
     }
 }
 
-
-
 void Server::startServer()
 {
     server_addr.sin_family = AF_INET;
@@ -72,29 +83,25 @@ void Server::startServer()
     if (sockfd < 0)
     {
         close(sockfd);
-        std::cout << "Socket KO" << std::endl;
-        exit(1);
+        throw std::runtime_error("Socket creation failed");
     }
     int opt = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
     {
         close(sockfd);
-        std::cout << "Setsockopt KO" << std::endl;
-        exit(1);
+        throw std::runtime_error("Setsockopt failed");
     }
     if (bind(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
     {
         close(sockfd);
-        std::cout << "Bind KO" << std::endl;
-        exit(1);
+        throw std::runtime_error("Bind failed");
     }
     else
         std::cout << "Bind OK" << std::endl;
     if (listen(sockfd, 3) < 0)
     {
         close(sockfd);
-        std::cout << "Listen KO" << std::endl;
-        exit(1);
+        throw std::runtime_error("Listen failed");
     }
     else
         std::cout << "Listen OK" << std::endl;
@@ -104,18 +111,21 @@ void Server::startServer()
 
 void Server::loopProgram()
 {
-    while (1)
+    running = true;
+    while (running)
     {
         fd_set active_fds = read_fds;
         select(max_fd + 1, &active_fds, NULL, NULL, NULL);
+        if (!running) break;  // Check if we should exit
+        
         if (FD_ISSET(sockfd, &active_fds))
         {
             int client_sockfd = accept(sockfd, NULL, NULL);
             if (client_sockfd < 0)
             {
                 close(client_sockfd);
-                std::cout << "Accept KO" << std::endl;
-                exit(1);
+                std::cout << "Accept failed" << std::endl;
+                continue;  // Skip this iteration and try again
             }
             else
             {
@@ -138,11 +148,8 @@ void Server::loopProgram()
                 bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0);
 
                 printServer();
-                // checkCommands(buffer);
                 printAllInputs();
-                // executeCommand(client_index);
                 printAllClients();
-                // logControl(client_index);
 
                 for (size_t i = 0; i < channels.size(); ++i)
                 {
@@ -152,8 +159,12 @@ void Server::loopProgram()
                 if (bytes_received < 0)
                 {
                     close(connected_clients[client_index]);
-                    std::cout << "Recv KO" << std::endl;
-                    exit(1);
+                    std::cout << "Receive failed" << std::endl;
+                    // Remove the client and continue
+                    clients.erase(clients.begin() + client_index);
+                    FD_CLR(connected_clients[client_index], &read_fds);
+                    connected_clients.erase(connected_clients.begin() + client_index);
+                    continue;
                 }
                 else if (bytes_received == 0)
                 {
@@ -300,8 +311,6 @@ void Server::executeCommand(size_t c_index)
     this->input.clear();
 }
 
-
-
 void Server::handleCommand(size_t client_index, const std::string& command)
 {
     std::cout << "Command from client " << client_index << ": " << command << std::endl;
@@ -313,9 +322,7 @@ void Server::handleCommand(size_t client_index, const std::string& command)
     checkCommands(command_vector);
     executeCommand(client_index);
     logControl(client_index);
-
 }
-
 
 bool Server::isClientExist(std::string nickName)
 {

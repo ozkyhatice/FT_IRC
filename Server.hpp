@@ -19,6 +19,7 @@ private:
     int sockfd;
     int port;
     std::string password;
+    bool running;
 
     std::vector<Client> clients; 
     std::vector<Channel> channels; 
