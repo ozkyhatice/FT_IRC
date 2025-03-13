@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <cstring>
+#include <csignal>
 
 
 class Server
@@ -19,7 +20,6 @@ private:
     int sockfd;
     int port;
     std::string password;
-    bool running;
 
     std::vector<Client> clients; 
     std::vector<Channel> channels; 

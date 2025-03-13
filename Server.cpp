@@ -2,7 +2,7 @@
 #include "Channel.hpp"
 #include <sstream>
 
-Server::Server(int port, std::string password) : port(port), password(password), running(false)
+Server::Server(int port, std::string password) : port(port), password(password)
 {
     startServer();
     max_fd = sockfd;
@@ -36,7 +36,6 @@ Server &Server::operator=(Server const &server)
 
 Server::~Server() {
     std::cout << "Server destructor called" << std::endl;
-    running = false;  // Stop the loop
     close(sockfd);    // Close the server socket
     
     // Close all client sockets
@@ -111,12 +110,10 @@ void Server::startServer()
 
 void Server::loopProgram()
 {
-    running = true;
-    while (running)
+    while (1)
     {
         fd_set active_fds = read_fds;
         select(max_fd + 1, &active_fds, NULL, NULL, NULL);
-        if (!running) break;  // Check if we should exit
         
         if (FD_ISSET(sockfd, &active_fds))
         {

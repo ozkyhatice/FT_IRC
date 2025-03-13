@@ -96,7 +96,7 @@ void Server::join(size_t client_index)
                                      clients[client_index].getUsername() + "@" + 
                                      clients[client_index].getIp_address() + 
                                      " JOIN " + channel_name + "\r\n";
-
+            
             std::vector<Client> channel_clients = it->getClients();
             for (std::vector<Client>::iterator client_it = channel_clients.begin(); client_it != channel_clients.end(); ++client_it)
             {
