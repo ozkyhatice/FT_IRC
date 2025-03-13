@@ -69,6 +69,7 @@ public:
     void removeClientFromChannels(size_t client_index);
 
     void handleCommand(size_t client_index, const std::string& command);
+void signalHandler(int code);
 
 };
 

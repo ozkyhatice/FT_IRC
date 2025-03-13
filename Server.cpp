@@ -4,6 +4,7 @@
 
 Server::Server(int port, std::string password) : port(port), password(password)
 {
+    
     startServer();
     max_fd = sockfd;
     loopProgram();

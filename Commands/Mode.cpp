@@ -91,7 +91,11 @@ void Server::mode(size_t client_index)
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> -o <nickname>\r\n");
                     return;
                 }
-
+                if (!it->isClientInChannel(parameter))
+                {
+                    clients[client_index].message(":server 441 " + clients[client_index].getNickname() + " " + parameter + " " + channel_name + " :They aren't on that channel\r\n");
+                    return;
+                }
                 std::vector<Client> channel_ops = it->getOperators();
                 for (std::vector<Client>::iterator op_it = channel_ops.begin(); op_it != channel_ops.end(); ++op_it)
                 {
@@ -150,8 +154,17 @@ void Server::mode(size_t client_index)
                     clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Usage MODE <channel> +l <limit>\r\n");
                     return;
                 }
-                it->setLimit(std::atoi(parameter.c_str()));
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +l " + parameter + "\r\n";
+                size_t new_limit = std::atoi(parameter.c_str());
+    
+             // Check if the new limit is less than the current number of clients in the channel
+            if (new_limit < it->getClients().size())
+            {
+                clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot set limit lower than the current number of users in the channel\r\n");
+                return;
+            }
+
+            it->setLimit(new_limit);
+            mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +l " + parameter + "\r\n";
             }
             else if (mode == "-l")
             {

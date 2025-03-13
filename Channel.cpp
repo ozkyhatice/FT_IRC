@@ -156,3 +156,4 @@ bool Channel::isInvited(Client client) const {
     }
     return false;
 }
+

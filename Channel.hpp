@@ -68,6 +68,9 @@ class Channel{
         void addInvited(Client client);
         void removeInvited(Client client);
         bool isInvited(Client client) const;
+        void clearClients() {
+        _clients.clear(); // İstemci listesini temizle
+    }
 };
 
 #endif

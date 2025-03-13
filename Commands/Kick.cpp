@@ -11,7 +11,7 @@ void Server::kick(size_t client_index)
 	}
 
 	// Check if we have enough parameters (KICK <channel> <nickname> <reason>)
-	if (input.size() < 4)
+	if (input.size() < 3)
 	{
 		clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " KICK :Not enough parameters\r\n");
 		clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " KICK :Usage KICK <channel> <nickname> <reason>\r\n");
@@ -20,7 +20,7 @@ void Server::kick(size_t client_index)
 
 	std::string channel_name = input[1];
 	std::string nickname = input[2];
-	std::string reason = input[3];
+	std::string reason = (input.size() > 3) ? input[3] : "";
 
 	// Check if channel name starts with '#'
 	if (channel_name[0] != '#')
@@ -59,6 +59,29 @@ void Server::kick(size_t client_index)
 			}
 			else
 			{
+				// Check if the client is trying to kick themself
+                if (clients[client_index].getNickname() == nickname)
+                {
+                    // Notify the client to select a new operator before kicking themselves
+                    clients[client_index].message(":server " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
+
+                    // Show a list of available clients to choose a new operator
+                    std::vector<Client> channel_clients = it->getClients();
+                    std::string available_clients;
+                    for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
+                    {
+                        if (c_it->getNickname() != clients[client_index].getNickname()) // exclude self
+                        {
+                            available_clients += c_it->getNickname() + " ";
+                        }
+                    }
+                    clients[client_index].message(":server " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
+
+                    // Await the operator's selection of a new operator (For simplicity, we assume the nickname of the new operator is given next)
+                    // Let's assume that after this point the client selects a new operator in another command.
+
+                    return;
+                }
 				// Kick the client from the channel
 				std::vector<Client> channel_clients = it->getClients();
 				for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
