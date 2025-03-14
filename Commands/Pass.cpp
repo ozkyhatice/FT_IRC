@@ -6,7 +6,7 @@ void Server::pass(size_t client_index)
 	{
 		if (input.size() != 2)
 		{
-			this->clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " :Not enough parameters\r\n");
+			this->clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " PASS :Not enough parameters\r\n");
 			return;
 		}
 		else
@@ -18,7 +18,7 @@ void Server::pass(size_t client_index)
 			if (input[1] == this->password)
 			{
 				this->clients[client_index].setPassword(input[1]);
-				this->clients[client_index].message(":server 001 " + clients[client_index].getNickname() + " :Password accepted\r\n");
+				this->clients[client_index].message(":server 001 " + clients[client_index].getNickname() + " :Welcome to the IRC Network\r\n");
 			}
 			else
 			{

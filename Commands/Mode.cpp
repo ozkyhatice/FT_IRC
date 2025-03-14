@@ -81,7 +81,7 @@ void Server::mode(size_t client_index)
                         break;
                     }
                 }
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +o " + parameter + "\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " +o " + parameter + "\r\n";
             }
             else if (mode == "-o")
             {
@@ -105,7 +105,7 @@ void Server::mode(size_t client_index)
                         break;
                     }
                 }
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -o " + parameter + "\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " -o " + parameter + "\r\n";
             }
             else if (mode == "+k")
             {
@@ -118,33 +118,33 @@ void Server::mode(size_t client_index)
 
                 it->setKey(parameter);
                 it->setChannelKey(true);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +k " + parameter + "\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " +k " + parameter + "\r\n";
             }
             else if (mode == "-k")
             {
                 it->setKey("");
                 it->setChannelKey(false);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -k\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " -k\r\n";
             }
             else if (mode == "+i")
             {
                 it->setInviteOnly(true);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +i\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " +i\r\n";
             }
             else if (mode == "-i")
             {
                 it->setInviteOnly(false);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -i\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " -i\r\n";
             }
             else if (mode == "+t")
             {
                 it->setTopicProtection(true);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +t\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " +t\r\n";
             }
             else if (mode == "-t")
             {
                 it->setTopicProtection(false);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -t\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " -t\r\n";
             }
             else if (mode == "+l")
             {
@@ -164,12 +164,12 @@ void Server::mode(size_t client_index)
             }
 
             it->setLimit(new_limit);
-            mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " +l " + parameter + "\r\n";
+            mode_message = ":" + nickname + " MODE " + channel_name + " +l " + parameter + "\r\n";
             }
             else if (mode == "-l")
             {
                 it->setLimit(0);
-                mode_message = ":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " MODE " + channel_name + " -l\r\n";
+                mode_message = ":" + nickname + " MODE " + channel_name + " -l\r\n";
             }
             else
             {

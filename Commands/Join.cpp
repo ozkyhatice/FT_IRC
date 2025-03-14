@@ -102,6 +102,27 @@ void Server::join(size_t client_index)
             {
                 client_it->message(join_message);
             }
+
+            // Send channel topic
+            if (!it->getTopic().empty())
+            {
+                clients[client_index].message(":server 332 " + clients[client_index].getNickname() + " " + channel_name + " :" + it->getTopic() + "\r\n");
+            }
+            else
+            {
+                clients[client_index].message(":server 331 " + clients[client_index].getNickname() + " " + channel_name + " :No topic is set\r\n");
+            }
+
+            // Send names list
+            std::string names_list;
+            for (std::vector<Client>::iterator name_it = channel_clients.begin(); name_it != channel_clients.end(); ++name_it)
+            {
+                if (it->isOperator(*name_it))
+                    names_list += "@";
+                names_list += name_it->getNickname() + " ";
+            }
+            clients[client_index].message(":server 353 " + clients[client_index].getNickname() + " = " + channel_name + " :" + names_list + "\r\n");
+            clients[client_index].message(":server 366 " + clients[client_index].getNickname() + " " + channel_name + " :End of /NAMES list.\r\n");
             return;
         }
     }
@@ -126,4 +147,11 @@ void Server::join(size_t client_index)
                               clients[client_index].getIp_address() + 
                               " JOIN " + channel_name + "\r\n";
     clients[client_index].message(join_message);
+
+    // Send default topic message for new channel
+    clients[client_index].message(":server 331 " + clients[client_index].getNickname() + " " + channel_name + " :No topic is set\r\n");
+
+    // Send names list for new channel
+    clients[client_index].message(":server 353 " + clients[client_index].getNickname() + " = " + channel_name + " :@" + clients[client_index].getNickname() + "\r\n");
+    clients[client_index].message(":server 366 " + clients[client_index].getNickname() + " " + channel_name + " :End of /NAMES list.\r\n");
 }

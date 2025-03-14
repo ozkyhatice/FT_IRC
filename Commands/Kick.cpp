@@ -90,10 +90,10 @@ void Server::kick(size_t client_index)
 					{
 						for (std::vector<Client>::iterator notify_it = channel_clients.begin(); notify_it != channel_clients.end(); ++notify_it)
 						{
-							notify_it->message(":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " KICK " + channel_name + " " + nickname + " :" + reason + "\r\n");
+							notify_it->message(":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " KICK " + channel_name + " " + nickname + (reason.empty() ? "\r\n" : " :" + reason + "\r\n"));
 						}
 						it->removeClient(*c_it);
-						c_it->message(":server 404 " + channel_name + " :You have been kicked from the channel\r\n");
+						c_it->message(":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " KICK " + channel_name + " " + nickname + (reason.empty() ? "\r\n" : " :" + reason + "\r\n"));
 
 						// Check if the channel is empty and remove it if necessary
 						if (it->getClients().empty())

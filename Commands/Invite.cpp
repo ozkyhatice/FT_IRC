@@ -84,10 +84,12 @@ void Server::invite(size_t client_index)
             target_client.message(":" + clients[client_index].getNickname() + "!" + 
                                 clients[client_index].getUsername() + "@" + 
                                 clients[client_index].getIp_address() + 
-                                " INVITE " + target_nick + " :" + channel_name + "\r\n");
+                                " INVITE " + target_nick + " " + channel_name + "\r\n");
 
             // Send confirmation to inviter
-            clients[client_index].message(":server 341 " + clients[client_index].getNickname() + " " + target_nick + " " + channel_name + "\r\n");
+            clients[client_index].message(":" + clients[client_index].getIp_address() + 
+                                " 341 " + clients[client_index].getNickname() + 
+                                " " + target_nick + " " + channel_name + "\r\n");
             return;
         }
     }
