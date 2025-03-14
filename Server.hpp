@@ -13,6 +13,7 @@
 #include <cstring>
 #include <csignal>
 
+#include <fcntl.h> // Add this line to include the necessary header file
 
 class Server
 {

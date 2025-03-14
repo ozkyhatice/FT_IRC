@@ -76,9 +76,11 @@ void Server::startServer()
 {
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
+
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     if (sockfd < 0)
     {
         close(sockfd);
