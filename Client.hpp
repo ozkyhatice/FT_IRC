@@ -37,7 +37,7 @@ class Client{
         void setPassword(std::string password);
 
         std::string getIp_address();
-        void setIp_address(int ip_address);
+        void setIp_address(std::string ip_address);
 
         void message(std::string message);
 

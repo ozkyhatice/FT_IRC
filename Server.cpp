@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Channel.hpp"
 #include <sstream>
+#include <arpa/inet.h>
 
 Server::Server(int port, std::string password) : port(port), password(password)
 {
@@ -119,7 +120,9 @@ void Server::loopProgram()
         
         if (FD_ISSET(sockfd, &active_fds))
         {
-            int client_sockfd = accept(sockfd, NULL, NULL);
+            struct sockaddr_in client_addr;
+            socklen_t addr_len = sizeof(client_addr);
+            int client_sockfd = accept(sockfd, (struct sockaddr*)&client_addr, &addr_len);
             if (client_sockfd < 0)
             {
                 close(client_sockfd);
@@ -129,13 +132,21 @@ void Server::loopProgram()
             else
             {
                 std::cout << "Accept OK" << std::endl;
+                
+                // Get client IP address
+                char ip_str[INET_ADDRSTRLEN];
+                inet_ntop(AF_INET, &(client_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
+                std::string client_ip(ip_str);
+                
+                Client new_client(client_sockfd);
+                new_client.setIp_address(client_ip);
+                this->clients.push_back(new_client);
+                
                 FD_SET(client_sockfd, &read_fds);
                 connected_clients.push_back(client_sockfd);
                 if (client_sockfd > max_fd)
                     max_fd = client_sockfd;
             }
-            Client new_client(client_sockfd);
-            this->clients.push_back(new_client);
         }
 
         int bytes_received;
@@ -163,7 +174,6 @@ void Server::loopProgram()
                     clients.erase(clients.begin() + client_index);
                     FD_CLR(connected_clients[client_index], &read_fds);
                     connected_clients.erase(connected_clients.begin() + client_index);
-                    continue;
                 }
                 else if (bytes_received == 0)
                 {

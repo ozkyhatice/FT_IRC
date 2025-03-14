@@ -90,7 +90,7 @@ std::string Client::getIp_address()
     return ip_address;
 }
 
-void Client::setIp_address(int ip_address)
+void Client::setIp_address(std::string ip_address)
 {
     this->ip_address = ip_address;
 }

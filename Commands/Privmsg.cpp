@@ -19,7 +19,11 @@ void Server::privmsg(size_t client_index)
     }
 
     std::string target = input[1];
+    // Combine all parts of the message after the target
     std::string message = input[2];
+    for (size_t i = 3; i < input.size(); ++i) {
+        message += " " + input[i];
+    }
 
     // If target starts with #, it's a channel message
     if (target[0] == '#')

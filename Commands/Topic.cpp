@@ -9,19 +9,19 @@ void Server::topic(size_t client_index)
         return;
     }
 
-    // Check if we have enough parameters (TOPIC <channel> <topic>)
-    if (input.size() < 3)
+    // Check if we have enough parameters (TOPIC <channel> [<topic>])
+    if (input.size() < 2)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Not enough parameters\r\n");
-        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Usage TOPIC <channel> <topic>\r\n");
+        clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " TOPIC :Usage TOPIC <channel> [<topic>]\r\n");
         return;
     }
 
     std::string channel_name = input[1];
-    std::string topic = input[2];
+    std::string topic = (input.size() > 2) ? input[2] : "";
 
-    // Check if channel name starts with '#'
-    if (channel_name[0] != '#')
+    // Check if channel name starts with '#' and is not too long
+    if (channel_name[0] != '#' || channel_name.length() > 50) // Assuming 50 is the max length
     {
         clients[client_index].message(":server 476 " + clients[client_index].getNickname() + " " + channel_name + " :Invalid channel name\r\n");
         return;
@@ -32,9 +32,10 @@ void Server::topic(size_t client_index)
     {
         if (it->getName() == channel_name)
         {
-            // Check if client is not in the channel
-            if (it->isClientInChannel(clients[client_index].getNickname()) == false)
+            // If no topic is provided, return the current topic
+            if (topic.empty())
             {
+                clients[client_index].message(":server 332 " + clients[client_index].getNickname() + " " + channel_name + " :" + it->getTopic() + "\r\n");
                 clients[client_index].message(":server 442 " + clients[client_index].getNickname() + " " + channel_name + " :You're not on that channel\r\n");
                 return;
             }
