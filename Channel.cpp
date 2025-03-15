@@ -157,3 +157,27 @@ bool Channel::isInvited(Client client) const {
     return false;
 }
 
+void Channel::updateClientNickname(const std::string& oldnick, const std::string& newnick) {
+	for (size_t i = 0; i < _clients.size(); ++i) {
+		if (_clients[i].getNickname() == oldnick) {
+			_clients[i].setNickname(newnick);
+		}
+	}
+}
+
+void Channel::updateOperatorNickname(const std::string& oldnick, const std::string& newnick) {
+    for (size_t i = 0; i < _operators.size(); ++i) {
+        if (_operators[i].getNickname() == oldnick) {
+            _operators[i].setNickname(newnick);
+		}
+	}
+}
+
+void Channel::updateInvitedClientNickname(const std::string& oldnick, const std::string& newnick) {
+	for (size_t i = 0; i < _invitedClients.size(); ++i) {
+		if (_invitedClients[i].getNickname() == oldnick) {
+			_invitedClients[i].setNickname(newnick);
+		}
+	}
+}
+

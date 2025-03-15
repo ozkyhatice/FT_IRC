@@ -68,9 +68,10 @@ class Channel{
         void addInvited(Client client);
         void removeInvited(Client client);
         bool isInvited(Client client) const;
-        void clearClients() {
-        _clients.clear(); // İstemci listesini temizle
-    }
+
+        void updateClientNickname(const std::string& oldnick, const std::string& newnick);
+        void updateOperatorNickname(const std::string& oldnick, const std::string& newnick);
+        void updateInvitedClientNickname(const std::string& oldnick, const std::string& newnick);
 };
 
 #endif
