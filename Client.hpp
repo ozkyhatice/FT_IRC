@@ -2,7 +2,6 @@
 #define CLIENT_HPP
 
 #include <iostream>
-#include <vector>
 #include <sys/socket.h>
 
 class Client
