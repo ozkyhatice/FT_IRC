@@ -74,8 +74,13 @@ bool Channel::isOperator(Client client) const{
     }
     return false;
 }
+
 std::vector<Client> Channel::getOperators() const{
     return _operators;
+}
+
+const std::vector<Client>& Channel::getClientsVector() const{
+    return _clients;
 }
 
 bool Channel::isClientInChannel(std::string nickname) const{

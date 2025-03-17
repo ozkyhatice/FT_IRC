@@ -26,7 +26,6 @@ bool isValidPort(const std::string& portStr)
             return false;
     }
 
-	
 	try
 	{
 		long port = std::stol(portStr);
@@ -42,15 +41,9 @@ int main(int ac, char **av)
 {
 	signal(SIGINT, signalHandler);
 
-	if (ac != 3)
+	if (ac != 3 || !av[1] || !av[2])
 	{
 		std::cerr << "Usage: ./ircserv <port> <password>" << std::endl;
-		return 1;
-	}
-
-	if (!av[1] || !av[2])
-	{
-		std::cerr << "Error: Invalid arguments" << std::endl;
 		return 1;
 	}
 
@@ -63,7 +56,7 @@ int main(int ac, char **av)
 	try
 	{
 		g_server = new Server(std::stoi(av[1]), av[2]);
-		g_server->loopProgram();  // Start the server loop
+		g_server->loopProgram();
 	}
 	catch(const std::exception& e)
 	{

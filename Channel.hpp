@@ -72,6 +72,8 @@ class Channel{
         void updateClientNickname(const std::string& oldnick, const std::string& newnick);
         void updateOperatorNickname(const std::string& oldnick, const std::string& newnick);
         void updateInvitedClientNickname(const std::string& oldnick, const std::string& newnick);
+
+        const std::vector<Client>& getClientsVector() const;
 };
 
 #endif

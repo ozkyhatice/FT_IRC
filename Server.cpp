@@ -35,16 +35,14 @@ Server &Server::operator=(Server const &server)
     return *this;
 }
 
-Server::~Server() {
-    std::cout << "Server destructor called" << std::endl;
-    close(sockfd);    // Close the server socket
-    
-    // Close all client sockets
+Server::~Server() 
+{
+    std::cout << "Server shutting down..." << std::endl;
+
+    close(sockfd);
     for (size_t i = 0; i < connected_clients.size(); ++i) {
         close(connected_clients[i]);
     }
-    
-    // Clear all data structures
     clients.clear();
     channels.clear();
     connected_clients.clear();
@@ -146,6 +144,8 @@ void Server::loopProgram()
                 connected_clients.push_back(client_sockfd);
                 if (client_sockfd > max_fd)
                     max_fd = client_sockfd;
+
+                new_client.message(":" + client_ip + " NOTICE * :Welcome! You can use the USER and PASS commands to authenticate.\r\n");
             }
         }
 

@@ -16,6 +16,15 @@ void Server::nick(size_t client_index)
 				channel.updateClientNickname(oldnick, this->input[1]);
 				channel.updateOperatorNickname(oldnick, this->input[1]);
 				channel.updateInvitedClientNickname(oldnick, this->input[1]);
+				
+				if (channel.isClientInChannel(oldnick))
+				{
+					std::vector<Client>& clients = const_cast<std::vector<Client>&>(channel.getClientsVector());
+					for (size_t j = 0; j < clients.size(); ++j)
+					{
+						clients[j].message(":" + oldnick + " NICK :" + this->input[1] + "\r\n");
+					}
+				}
 			}
 		}
 		else

@@ -12,8 +12,7 @@
 #include <fstream>
 #include <cstring>
 #include <csignal>
-
-#include <fcntl.h> // Add this line to include the necessary header file
+#include <fcntl.h>
 
 class Server
 {
@@ -71,7 +70,7 @@ public:
     void removeClientFromChannels(size_t client_index);
 
     void handleCommand(size_t client_index, const std::string& command);
-void signalHandler(int code);
+    void signalHandler(int code);
 
 };
 

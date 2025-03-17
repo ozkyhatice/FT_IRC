@@ -63,7 +63,7 @@ void Server::kick(size_t client_index)
                 if (clients[client_index].getNickname() == nickname)
                 {
                     // Notify the client to select a new operator before kicking themselves
-                    clients[client_index].message(":server " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
+                    clients[client_index].message(":server 441 " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
 
                     // Show a list of available clients to choose a new operator
                     std::vector<Client> channel_clients = it->getClients();
@@ -75,7 +75,7 @@ void Server::kick(size_t client_index)
                             available_clients += c_it->getNickname() + " ";
                         }
                     }
-                    clients[client_index].message(":server " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
+                    clients[client_index].message(":server 441 " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
 
                     // Await the operator's selection of a new operator (For simplicity, we assume the nickname of the new operator is given next)
                     // Let's assume that after this point the client selects a new operator in another command.
