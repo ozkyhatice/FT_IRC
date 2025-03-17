@@ -13,6 +13,8 @@
 #include <cstring>
 #include <csignal>
 #include <fcntl.h>
+#include <sstream>
+#include <arpa/inet.h>
 
 class Server
 {

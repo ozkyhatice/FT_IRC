@@ -1,7 +1,5 @@
 #include "Server.hpp"
 #include "Channel.hpp"
-#include <sstream>
-#include <arpa/inet.h>
 
 Server::Server(int port, std::string password) : port(port), password(password)
 {
@@ -187,10 +185,8 @@ void Server::removeClientFromChannels(size_t client_index)
         if (it->isClientInChannel(client.getNickname()))
         {
             it->removeClient(client);
-            std::cout << "Removed " << client.getNickname() << " from " << it->getName() << std::endl;
             if (it->getClients().empty())
             {
-                std::cout << "Channel " << it->getName() << " is now empty and will be deleted." << std::endl;
                 it = channels.erase(it);
                 continue;
             }
@@ -207,7 +203,7 @@ void Server::logControl(size_t client_index)
         clients[client_index].getConnected() == false)
     {
         clients[client_index].setConnected(true);
-        std::cout << "Client connected" << std::endl;
+        std::cout << clients[client_index].getNickname() << ": Client Connected" << std::endl;
         clients[client_index].message(":" + clients[client_index].getIp_address() + " 001 " + clients[client_index].getNickname() + " :Welcome to the Internet Relay Network " + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + "\r\n");
     }
 }

@@ -17,9 +17,6 @@ void Server::pass(size_t client_index)
 		}
 		else
 		{
-			std::cout << "Password: " << input[1] << "-" << std::endl;
-			std::cout << "serverPassword: " << this->password << "-" << std::endl;
-
 			input[1].erase(input[1].find_last_not_of("\r") + 1);
 			if (input[1] == this->password)
 			{

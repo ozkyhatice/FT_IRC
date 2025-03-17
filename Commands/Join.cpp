@@ -3,13 +3,6 @@
 
 void Server::join(size_t client_index)
 {
-    std::cout << "Input received from client " << client_index << ":" << std::endl;
-    for (size_t i = 0; i < input.size(); i++)
-    {
-        std::cout << "input[" << i << "]: " << input[i] << std::endl;
-    }
-    std::cout << "Total number of inputs: " << input.size() << std::endl;
-
     if (!clients[client_index].getConnected())
     {
         clients[client_index].message(":server 451 " + clients[client_index].getNickname() + " :You have not registered\r\n");
@@ -119,7 +112,6 @@ void Server::join(size_t client_index)
 
     if (!key.empty())
     {
-        std::cout << "Setting key for channel " << channel_name << ": " << key << std::endl;
         new_channel.setKey(key);
         new_channel.setChannelKey(true);
     }
