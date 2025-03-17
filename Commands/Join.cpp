@@ -18,7 +18,7 @@ void Server::join(size_t client_index)
 
     std::string channel_name = input[1];
     std::string key;
-    
+
     if (input.size() == 3)
     {
         key = input[2];
@@ -65,7 +65,7 @@ void Server::join(size_t client_index)
                     clients[client_index].message(":server 475 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (+k) - key required\r\n");
                     return;
                 }
-                
+
                 if (it->getKey() != key)
                 {
                     clients[client_index].message(":server 475 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (incorrect key)\r\n");
@@ -74,11 +74,11 @@ void Server::join(size_t client_index)
             }
 
             it->addClient(clients[client_index]);
-            std::string join_message = ":" + clients[client_index].getNickname() + "!" + 
-                                     clients[client_index].getUsername() + "@" + 
-                                     clients[client_index].getIp_address() + 
-                                     " JOIN " + channel_name + "\r\n";
-            
+            std::string join_message = ":" + clients[client_index].getNickname() + "!" +
+                                       clients[client_index].getUsername() + "@" +
+                                       clients[client_index].getIp_address() +
+                                       " JOIN " + channel_name + "\r\n";
+
             std::vector<Client> channel_clients = it->getClients();
             for (std::vector<Client>::iterator client_it = channel_clients.begin(); client_it != channel_clients.end(); ++client_it)
             {
@@ -115,13 +115,13 @@ void Server::join(size_t client_index)
         new_channel.setKey(key);
         new_channel.setChannelKey(true);
     }
-    
+
     channels.push_back(new_channel);
 
-    std::string join_message = ":" + clients[client_index].getNickname() + "!" + 
-                              clients[client_index].getUsername() + "@" + 
-                              clients[client_index].getIp_address() + 
-                              " JOIN " + channel_name + "\r\n";
+    std::string join_message = ":" + clients[client_index].getNickname() + "!" +
+                               clients[client_index].getUsername() + "@" +
+                               clients[client_index].getIp_address() +
+                               " JOIN " + channel_name + "\r\n";
     clients[client_index].message(join_message);
 
     clients[client_index].message(":server 331 " + clients[client_index].getNickname() + " " + channel_name + " :No topic is set\r\n");

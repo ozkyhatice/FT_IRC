@@ -67,13 +67,13 @@ void Server::invite(size_t client_index)
                 return;
             }
             it->addInvited(target_client);
-            target_client.message(":" + clients[client_index].getNickname() + "!" + 
-                                clients[client_index].getUsername() + "@" + 
-                                clients[client_index].getIp_address() + 
-                                " INVITE " + target_nick + " " + channel_name + "\r\n");
-            clients[client_index].message(":" + clients[client_index].getIp_address() + 
-                                " 341 " + clients[client_index].getNickname() + 
-                                " " + target_nick + " " + channel_name + "\r\n");
+            target_client.message(":" + clients[client_index].getNickname() + "!" +
+                                  clients[client_index].getUsername() + "@" +
+                                  clients[client_index].getIp_address() +
+                                  " INVITE " + target_nick + " " + channel_name + "\r\n");
+            clients[client_index].message(":" + clients[client_index].getIp_address() +
+                                          " 341 " + clients[client_index].getNickname() +
+                                          " " + target_nick + " " + channel_name + "\r\n");
             return;
         }
     }

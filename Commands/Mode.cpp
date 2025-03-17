@@ -145,14 +145,14 @@ void Server::mode(size_t client_index)
                     return;
                 }
                 size_t new_limit = std::atoi(parameter.c_str());
-            if (new_limit < it->getClients().size())
-            {
-                clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot set limit lower than the current number of users in the channel\r\n");
-                return;
-            }
+                if (new_limit < it->getClients().size())
+                {
+                    clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot set limit lower than the current number of users in the channel\r\n");
+                    return;
+                }
 
-            it->setLimit(new_limit);
-            mode_message = ":" + nickname + " MODE " + channel_name + " +l " + parameter + "\r\n";
+                it->setLimit(new_limit);
+                mode_message = ":" + nickname + " MODE " + channel_name + " +l " + parameter + "\r\n";
             }
             else if (mode == "-l")
             {
@@ -171,7 +171,7 @@ void Server::mode(size_t client_index)
             return;
         }
     }
-    
+
     if (!channel_found)
     {
         clients[client_index].message(":server 403 " + clients[client_index].getNickname() + " " + channel_name + " :No such channel\r\n");

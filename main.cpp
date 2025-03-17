@@ -2,7 +2,7 @@
 #include <limits>
 #include <stdexcept>
 
-Server* g_server = NULL;
+Server *g_server = NULL;
 
 void signalHandler(int code)
 {
@@ -15,23 +15,23 @@ void signalHandler(int code)
 	exit(0);
 }
 
-bool isValidPort(const std::string& portStr)
+bool isValidPort(const std::string &portStr)
 {
 	if (portStr.empty())
 		return false;
-		
-    for(size_t i = 0; i < portStr.size(); i++)
-    {
-        if (!std::isdigit(portStr[i]))
-            return false;
-    }
-	
+
+	for (size_t i = 0; i < portStr.size(); i++)
+	{
+		if (!std::isdigit(portStr[i]))
+			return false;
+	}
+
 	try
 	{
 		long port = std::stol(portStr);
 		return port >= 0 && port <= 65535;
 	}
-	catch(const std::exception&)
+	catch (const std::exception &)
 	{
 		return false;
 	}
@@ -58,7 +58,7 @@ int main(int ac, char **av)
 		g_server = new Server(std::stoi(av[1]), av[2]);
 		g_server->loopProgram();
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		if (g_server)
 		{

@@ -18,7 +18,8 @@ void Server::privmsg(size_t client_index)
 
     std::string target = input[1];
     std::string message = input[2];
-    for (size_t i = 3; i < input.size(); ++i) {
+    for (size_t i = 3; i < input.size(); ++i)
+    {
         message += " " + input[i];
     }
 
@@ -40,10 +41,10 @@ void Server::privmsg(size_t client_index)
                 {
                     if (cit->getNickname() != clients[client_index].getNickname())
                     {
-                        cit->message(":" + clients[client_index].getNickname() + "!" + 
-                                   clients[client_index].getUsername() + "@" + 
-                                   clients[client_index].getIp_address() + 
-                                   " PRIVMSG " + target + " :" + message + "\r\n");
+                        cit->message(":" + clients[client_index].getNickname() + "!" +
+                                     clients[client_index].getUsername() + "@" +
+                                     clients[client_index].getIp_address() +
+                                     " PRIVMSG " + target + " :" + message + "\r\n");
                     }
                 }
                 break;
@@ -62,10 +63,10 @@ void Server::privmsg(size_t client_index)
             if (it->getNickname() == target)
             {
                 user_found = true;
-                it->message(":" + clients[client_index].getNickname() + "!" + 
-                           clients[client_index].getUsername() + "@" + 
-                           clients[client_index].getIp_address() + 
-                           " PRIVMSG " + target + " :" + message + "\r\n");
+                it->message(":" + clients[client_index].getNickname() + "!" +
+                            clients[client_index].getUsername() + "@" +
+                            clients[client_index].getIp_address() +
+                            " PRIVMSG " + target + " :" + message + "\r\n");
                 break;
             }
         }

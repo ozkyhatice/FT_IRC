@@ -3,9 +3,9 @@
 void Server::help(size_t client_index)
 {
 	std::string nick = this->clients[client_index].getNickname();
-	
+
 	this->clients[client_index].message(":ircserv 704 " + nick + " :HELP MENU\r\n");
-	
+
 	if (this->clients[client_index].getConnected())
 	{
 		this->clients[client_index].message(":ircserv 704 " + nick + " :Available Commands:\r\n");

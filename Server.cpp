@@ -33,12 +33,13 @@ Server &Server::operator=(Server const &server)
     return *this;
 }
 
-Server::~Server() 
+Server::~Server()
 {
     std::cout << "Server shutting down..." << std::endl;
 
     close(sockfd);
-    for (size_t i = 0; i < connected_clients.size(); ++i) {
+    for (size_t i = 0; i < connected_clients.size(); ++i)
+    {
         close(connected_clients[i]);
     }
     clients.clear();
@@ -90,12 +91,12 @@ void Server::loopProgram()
     {
         fd_set active_fds = read_fds;
         select(max_fd + 1, &active_fds, NULL, NULL, NULL);
-        
+
         if (FD_ISSET(sockfd, &active_fds))
         {
             struct sockaddr_in client_addr;
             socklen_t addr_len = sizeof(client_addr);
-            int client_sockfd = accept(sockfd, (struct sockaddr*)&client_addr, &addr_len);
+            int client_sockfd = accept(sockfd, (struct sockaddr *)&client_addr, &addr_len);
             if (client_sockfd < 0)
             {
                 close(client_sockfd);
@@ -108,11 +109,11 @@ void Server::loopProgram()
                 char ip_str[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, &(client_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
                 std::string client_ip(ip_str);
-                
+
                 Client new_client(client_sockfd);
                 new_client.setIp_address(client_ip);
                 this->clients.push_back(new_client);
-                
+
                 FD_SET(client_sockfd, &read_fds);
                 connected_clients.push_back(client_sockfd);
                 if (client_sockfd > max_fd)
@@ -151,7 +152,7 @@ void Server::loopProgram()
                 {
                     std::string received_data(buffer.data(), bytes_received);
                     clients[client_index].appendToCommandBuffer(received_data);
-                    std::string& client_buffer = clients[client_index].getCommandBuffer();
+                    std::string &client_buffer = clients[client_index].getCommandBuffer();
                     size_t pos;
                     while ((pos = client_buffer.find("\n")) != std::string::npos)
                     {
@@ -161,11 +162,10 @@ void Server::loopProgram()
                         handleCommand(client_index, full_command);
                         client_buffer.erase(0, pos + 1);
                     }
-                
+
                     memset(buffer.data(), 0, buffer.size());
                     client_index++;
                 }
-                
             }
             else
             {
@@ -175,10 +175,9 @@ void Server::loopProgram()
     }
 }
 
-
 void Server::removeClientFromChannels(size_t client_index)
 {
-    Client& client = clients[client_index];
+    Client &client = clients[client_index];
 
     for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end();)
     {
@@ -287,7 +286,7 @@ void Server::executeCommand(size_t c_index)
     this->input.clear();
 }
 
-void Server::handleCommand(size_t client_index, const std::string& command)
+void Server::handleCommand(size_t client_index, const std::string &command)
 {
     std::vector<char> command_vector(command.begin(), command.end());
     checkCommands(command_vector);
@@ -297,10 +296,10 @@ void Server::handleCommand(size_t client_index, const std::string& command)
 
 bool Server::isClientExist(std::string nickName)
 {
-	for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
-	{
-		if (nickName == it->getNickname())
-			return (true);
-	}
-	return (false);
+    for (std::vector<Client>::iterator it = this->clients.begin(); it != this->clients.end(); it++)
+    {
+        if (nickName == it->getNickname())
+            return (true);
+    }
+    return (false);
 }

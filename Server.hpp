@@ -27,10 +27,10 @@ private:
     struct sockaddr_in server_addr;
     std::vector<std::string> input;
 
-    std::vector<Client> clients; 
-    std::vector<Channel> channels; 
+    std::vector<Client> clients;
+    std::vector<Channel> channels;
     std::vector<int> connected_clients;
-    typedef void(Server::*fpoint)(size_t);
+    typedef void (Server::*fpoint)(size_t);
 
 public:
     Server(int port, std::string password);
@@ -44,7 +44,7 @@ public:
 
     void checkCommands(std::vector<char> &buffer);
     void executeCommand(size_t client_index);
-    void handleCommand(size_t client_index, const std::string& command);
+    void handleCommand(size_t client_index, const std::string &command);
 
     bool isClientExist(std::string nickName);
     void removeClientFromChannels(size_t client_index);

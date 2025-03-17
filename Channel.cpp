@@ -1,11 +1,13 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string topic): _name(name), _topic(topic), inviteOnly(false), topicProtection(false), channelKey(false), channelLimit(false), _key(""), _limit(0) {}
+Channel::Channel(std::string name, std::string topic) : _name(name), _topic(topic), inviteOnly(false), topicProtection(false), channelKey(false), channelLimit(false), _key(""), _limit(0) {}
 
-Channel::Channel(Channel const &channel): _name(channel._name), _topic(channel._topic), _clients(channel._clients), _operators(channel._operators), inviteOnly(channel.inviteOnly), topicProtection(channel.topicProtection), channelKey(channel.channelKey), channelLimit(channel.channelLimit), _key(channel._key), _limit(channel._limit) {}
+Channel::Channel(Channel const &channel) : _name(channel._name), _topic(channel._topic), _clients(channel._clients), _operators(channel._operators), inviteOnly(channel.inviteOnly), topicProtection(channel.topicProtection), channelKey(channel.channelKey), channelLimit(channel.channelLimit), _key(channel._key), _limit(channel._limit) {}
 
-Channel &Channel::operator=(Channel const &channel){
-    if (this != &channel){
+Channel &Channel::operator=(Channel const &channel)
+{
+    if (this != &channel)
+    {
         _name = channel._name;
         _topic = channel._topic;
         _clients = channel._clients;
@@ -20,170 +22,218 @@ Channel &Channel::operator=(Channel const &channel){
     return *this;
 }
 
-Channel::~Channel(){}
+Channel::~Channel() {}
 
-void Channel::setName(std::string name){
+void Channel::setName(std::string name)
+{
     _name = name;
 }
-std::string Channel::getName() const{
+std::string Channel::getName() const
+{
     return _name;
 }
 
-void Channel::setTopic(std::string topic){
+void Channel::setTopic(std::string topic)
+{
     _topic = topic;
 }
 
-std::string Channel::getTopic() const{
+std::string Channel::getTopic() const
+{
     return _topic;
 }
 
-void Channel::addClient(Client client){
+void Channel::addClient(Client client)
+{
     _clients.push_back(client);
 }
 
-void Channel::removeClient(Client client){
-    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it){
-        if (it->getNickname() == client.getNickname()){
+void Channel::removeClient(Client client)
+{
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
             _clients.erase(it);
             break;
         }
     }
 }
 
-std::vector<Client> Channel::getClients() const{
+std::vector<Client> Channel::getClients() const
+{
     return _clients;
 }
 
-void Channel::addOperator(Client client){
+void Channel::addOperator(Client client)
+{
     _operators.push_back(client);
 }
 
-void Channel::removeOperator(Client client){
-    for (std::vector<Client>::iterator it = _operators.begin(); it != _operators.end(); ++it){
-        if (it->getNickname() == client.getNickname()){
+void Channel::removeOperator(Client client)
+{
+    for (std::vector<Client>::iterator it = _operators.begin(); it != _operators.end(); ++it)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
             _operators.erase(it);
             break;
         }
     }
 }
 
-bool Channel::isOperator(Client client) const{
-    for (std::vector<Client>::const_iterator it = _operators.begin(); it != _operators.end(); ++it){
-        if (it->getNickname() == client.getNickname()){
+bool Channel::isOperator(Client client) const
+{
+    for (std::vector<Client>::const_iterator it = _operators.begin(); it != _operators.end(); ++it)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
             return true;
         }
     }
     return false;
 }
 
-std::vector<Client> Channel::getOperators() const{
+std::vector<Client> Channel::getOperators() const
+{
     return _operators;
 }
 
-const std::vector<Client>& Channel::getClientsVector() const{
+const std::vector<Client> &Channel::getClientsVector() const
+{
     return _clients;
 }
 
-bool Channel::isClientInChannel(std::string nickname) const{
-    for (std::vector<Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it){
-        if (it->getNickname() == nickname){
+bool Channel::isClientInChannel(std::string nickname) const
+{
+    for (std::vector<Client>::const_iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if (it->getNickname() == nickname)
+        {
             return true;
         }
     }
     return false;
 }
 
-void Channel::setInviteOnly(bool inviteOnly){
+void Channel::setInviteOnly(bool inviteOnly)
+{
     this->inviteOnly = inviteOnly;
 }
 
-bool Channel::getInviteOnly() const{
+bool Channel::getInviteOnly() const
+{
     return inviteOnly;
 }
 
-void Channel::setTopicProtection(bool topicProtection){
+void Channel::setTopicProtection(bool topicProtection)
+{
     this->topicProtection = topicProtection;
 }
 
-bool Channel::getTopicProtection() const{
+bool Channel::getTopicProtection() const
+{
     return topicProtection;
 }
 
-void Channel::setChannelKey(bool channelKey){
+void Channel::setChannelKey(bool channelKey)
+{
     this->channelKey = channelKey;
 }
 
-bool Channel::getChannelKey() const{
+bool Channel::getChannelKey() const
+{
     return channelKey;
 }
 
-void Channel::setChannelLimit(bool channelLimit){
+void Channel::setChannelLimit(bool channelLimit)
+{
     this->channelLimit = channelLimit;
 }
 
-bool Channel::getChannelLimit() const{
+bool Channel::getChannelLimit() const
+{
     return channelLimit;
 }
 
-void Channel::setKey(std::string key){
+void Channel::setKey(std::string key)
+{
     _key = key;
 }
 
-std::string Channel::getKey() const{
+std::string Channel::getKey() const
+{
     return _key;
 }
 
-void Channel::setLimit(int limit){
+void Channel::setLimit(int limit)
+{
     _limit = limit;
 }
 
-int Channel::getLimit() const{
+int Channel::getLimit() const
+{
     return _limit;
 }
 
-void Channel::addInvited(Client client) {
+void Channel::addInvited(Client client)
+{
     _invitedClients.push_back(client);
 }
 
-void Channel::removeInvited(Client client) {
-    for (std::vector<Client>::iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
-        if (it->getNickname() == client.getNickname()) {
+void Channel::removeInvited(Client client)
+{
+    for (std::vector<Client>::iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
             _invitedClients.erase(it);
             break;
         }
     }
 }
 
-bool Channel::isInvited(Client client) const {
-    for (std::vector<Client>::const_iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it) {
-        if (it->getNickname() == client.getNickname()) {
+bool Channel::isInvited(Client client) const
+{
+    for (std::vector<Client>::const_iterator it = _invitedClients.begin(); it != _invitedClients.end(); ++it)
+    {
+        if (it->getNickname() == client.getNickname())
+        {
             return true;
         }
     }
     return false;
 }
 
-void Channel::updateClientNickname(const std::string& oldnick, const std::string& newnick) {
-	for (size_t i = 0; i < _clients.size(); ++i) {
-		if (_clients[i].getNickname() == oldnick) {
-			_clients[i].setNickname(newnick);
-		}
-	}
+void Channel::updateClientNickname(const std::string &oldnick, const std::string &newnick)
+{
+    for (size_t i = 0; i < _clients.size(); ++i)
+    {
+        if (_clients[i].getNickname() == oldnick)
+        {
+            _clients[i].setNickname(newnick);
+        }
+    }
 }
 
-void Channel::updateOperatorNickname(const std::string& oldnick, const std::string& newnick) {
-    for (size_t i = 0; i < _operators.size(); ++i) {
-        if (_operators[i].getNickname() == oldnick) {
+void Channel::updateOperatorNickname(const std::string &oldnick, const std::string &newnick)
+{
+    for (size_t i = 0; i < _operators.size(); ++i)
+    {
+        if (_operators[i].getNickname() == oldnick)
+        {
             _operators[i].setNickname(newnick);
-		}
-	}
+        }
+    }
 }
 
-void Channel::updateInvitedClientNickname(const std::string& oldnick, const std::string& newnick) {
-	for (size_t i = 0; i < _invitedClients.size(); ++i) {
-		if (_invitedClients[i].getNickname() == oldnick) {
-			_invitedClients[i].setNickname(newnick);
-		}
-	}
+void Channel::updateInvitedClientNickname(const std::string &oldnick, const std::string &newnick)
+{
+    for (size_t i = 0; i < _invitedClients.size(); ++i)
+    {
+        if (_invitedClients[i].getNickname() == oldnick)
+        {
+            _invitedClients[i].setNickname(newnick);
+        }
+    }
 }
-

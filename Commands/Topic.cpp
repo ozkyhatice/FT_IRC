@@ -37,9 +37,9 @@ void Server::topic(size_t client_index)
                 return;
             }
             it->setTopic(topic);
-            std::string topic_message = ":" + clients[client_index].getNickname() + "!" + 
-                                        clients[client_index].getUsername() + "@" + 
-                                        clients[client_index].getIp_address() + 
+            std::string topic_message = ":" + clients[client_index].getNickname() + "!" +
+                                        clients[client_index].getUsername() + "@" +
+                                        clients[client_index].getIp_address() +
                                         " TOPIC " + channel_name + " :" + topic + "\r\n";
             std::vector<Client> channel_clients = it->getClients();
             for (std::vector<Client>::iterator client_it = channel_clients.begin(); client_it != channel_clients.end(); ++client_it)

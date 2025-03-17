@@ -46,23 +46,23 @@ void Server::kick(size_t client_index)
 			}
 			else
 			{
-                if (clients[client_index].getNickname() == nickname)
-                {
-                    clients[client_index].message(":server 441 " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
+				if (clients[client_index].getNickname() == nickname)
+				{
+					clients[client_index].message(":server 441 " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
 
-                    std::vector<Client> channel_clients = it->getClients();
-                    std::string available_clients;
-                    for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
-                    {
-                        if (c_it->getNickname() != clients[client_index].getNickname())
-                        {
-                            available_clients += c_it->getNickname() + " ";
-                        }
-                    }
-                    clients[client_index].message(":server 441 " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
+					std::vector<Client> channel_clients = it->getClients();
+					std::string available_clients;
+					for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
+					{
+						if (c_it->getNickname() != clients[client_index].getNickname())
+						{
+							available_clients += c_it->getNickname() + " ";
+						}
+					}
+					clients[client_index].message(":server 441 " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
 
-                    return;
-                }
+					return;
+				}
 				std::vector<Client> channel_clients = it->getClients();
 				for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
 				{
