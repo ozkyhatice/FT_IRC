@@ -10,15 +10,12 @@ void Server::join(size_t client_index)
     }
     std::cout << "Total number of inputs: " << input.size() << std::endl;
 
-
-    // Check if client is connected
     if (!clients[client_index].getConnected())
     {
         clients[client_index].message(":server 451 " + clients[client_index].getNickname() + " :You have not registered\r\n");
         return;
     }
 
-    // Check if we have enough parameters (JOIN <channel>)
     if (input.size() < 2)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " JOIN :Not enough parameters\r\n");
@@ -29,7 +26,6 @@ void Server::join(size_t client_index)
     std::string channel_name = input[1];
     std::string key;
     
-    // Check if key parameter is provided (3rd parameter)
     if (input.size() == 3)
     {
         key = input[2];
@@ -41,40 +37,34 @@ void Server::join(size_t client_index)
         return;
     }
 
-    // Check if channel name starts with '#'
     if (channel_name[0] != '#')
     {
         clients[client_index].message(":server 476 " + clients[client_index].getNickname() + " " + channel_name + " :Invalid channel name\r\n");
         return;
     }
 
-    // Check if channel already exists
     for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->getName() == channel_name)
         {
-            // Check if client is already in the channel
             if (it->isClientInChannel(clients[client_index].getNickname()))
             {
                 clients[client_index].message(":server 405 " + clients[client_index].getNickname() + " " + channel_name + " :You are already in that channel\r\n");
                 return;
             }
 
-            // Check if channel is invite-only
             if (it->getInviteOnly() && !it->isInvited(clients[client_index]))
             {
                 clients[client_index].message(":server 473 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (+i) - you must be invited\r\n");
                 return;
             }
 
-            // Check if channel has reached its limit
             if (it->getLimit() > 0 && it->getClients().size() >= (size_t)it->getLimit())
             {
                 clients[client_index].message(":server 471 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot join channel (+l) - channel is full\r\n");
                 return;
             }
 
-            // Check if channel requires a key
             if (it->getChannelKey())
             {
                 if (key.empty())
@@ -90,7 +80,6 @@ void Server::join(size_t client_index)
                 }
             }
 
-            // Add client to channel and notify all members
             it->addClient(clients[client_index]);
             std::string join_message = ":" + clients[client_index].getNickname() + "!" + 
                                      clients[client_index].getUsername() + "@" + 
@@ -103,7 +92,6 @@ void Server::join(size_t client_index)
                 client_it->message(join_message);
             }
 
-            // Send channel topic
             if (!it->getTopic().empty())
             {
                 clients[client_index].message(":server 332 " + clients[client_index].getNickname() + " " + channel_name + " :" + it->getTopic() + "\r\n");
@@ -112,8 +100,6 @@ void Server::join(size_t client_index)
             {
                 clients[client_index].message(":server 331 " + clients[client_index].getNickname() + " " + channel_name + " :No topic is set\r\n");
             }
-
-            // Send names list
             std::string names_list;
             for (std::vector<Client>::iterator name_it = channel_clients.begin(); name_it != channel_clients.end(); ++name_it)
             {
@@ -127,12 +113,10 @@ void Server::join(size_t client_index)
         }
     }
 
-    // Create new channel if it doesn't exist
     Channel new_channel(channel_name, "");
     new_channel.addClient(clients[client_index]);
-    new_channel.addOperator(clients[client_index]); // First user becomes operator
-    
-    // Set channel key if provided
+    new_channel.addOperator(clients[client_index]);
+
     if (!key.empty())
     {
         std::cout << "Setting key for channel " << channel_name << ": " << key << std::endl;
@@ -148,10 +132,7 @@ void Server::join(size_t client_index)
                               " JOIN " + channel_name + "\r\n";
     clients[client_index].message(join_message);
 
-    // Send default topic message for new channel
     clients[client_index].message(":server 331 " + clients[client_index].getNickname() + " " + channel_name + " :No topic is set\r\n");
-
-    // Send names list for new channel
     clients[client_index].message(":server 353 " + clients[client_index].getNickname() + " = " + channel_name + " :@" + clients[client_index].getNickname() + "\r\n");
     clients[client_index].message(":server 366 " + clients[client_index].getNickname() + " " + channel_name + " :End of /NAMES list.\r\n");
 }

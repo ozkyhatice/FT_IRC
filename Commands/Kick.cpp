@@ -3,14 +3,11 @@
 
 void Server::kick(size_t client_index)
 {
-	// Check if client is connected
 	if (!clients[client_index].getConnected())
 	{
 		clients[client_index].message(":server 451 " + clients[client_index].getNickname() + " :You have not registered\r\n");
 		return;
 	}
-
-	// Check if we have enough parameters (KICK <channel> <nickname> <reason>)
 	if (input.size() < 3)
 	{
 		clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " KICK :Not enough parameters\r\n");
@@ -21,37 +18,27 @@ void Server::kick(size_t client_index)
 	std::string channel_name = input[1];
 	std::string nickname = input[2];
 	std::string reason = (input.size() > 3) ? input[3] : "";
-
-	// Check if channel name starts with '#'
 	if (channel_name[0] != '#')
 	{
 		clients[client_index].message(":server 476 " + clients[client_index].getNickname() + " " + channel_name + " :Invalid channel name\r\n");
 		return;
 	}
-
-	// Check if channel already exists
 	bool channel_found = false;
 	for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
 	{
 		if (it->getName() == channel_name)
 		{
 			channel_found = true;
-
-			// Check if client is not in the channel
 			if (!it->isClientInChannel(clients[client_index].getNickname()))
 			{
 				clients[client_index].message(":server 442 " + clients[client_index].getNickname() + " " + channel_name + " :You're not on that channel\r\n");
 				return;
 			}
-
-			// Check if client is an operator
 			if (!it->isOperator(clients[client_index]))
 			{
 				clients[client_index].message(":server 482 " + clients[client_index].getNickname() + " " + channel_name + " :You're not channel operator\r\n");
 				return;
 			}
-
-			// Check if nickname is in the channel
 			if (!it->isClientInChannel(nickname))
 			{
 				clients[client_index].message(":server 441 " + clients[client_index].getNickname() + " " + nickname + " " + channel_name + " :They aren't on that channel\r\n");
@@ -59,30 +46,23 @@ void Server::kick(size_t client_index)
 			}
 			else
 			{
-				// Check if the client is trying to kick themself
                 if (clients[client_index].getNickname() == nickname)
                 {
-                    // Notify the client to select a new operator before kicking themselves
                     clients[client_index].message(":server 441 " + channel_name + " :You must select a new operator before kicking yourself.\r\n");
 
-                    // Show a list of available clients to choose a new operator
                     std::vector<Client> channel_clients = it->getClients();
                     std::string available_clients;
                     for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
                     {
-                        if (c_it->getNickname() != clients[client_index].getNickname()) // exclude self
+                        if (c_it->getNickname() != clients[client_index].getNickname())
                         {
                             available_clients += c_it->getNickname() + " ";
                         }
                     }
                     clients[client_index].message(":server 441 " + channel_name + " :Available clients to become new operator: " + available_clients + "\r\n");
 
-                    // Await the operator's selection of a new operator (For simplicity, we assume the nickname of the new operator is given next)
-                    // Let's assume that after this point the client selects a new operator in another command.
-
                     return;
                 }
-				// Kick the client from the channel
 				std::vector<Client> channel_clients = it->getClients();
 				for (std::vector<Client>::iterator c_it = channel_clients.begin(); c_it != channel_clients.end(); ++c_it)
 				{
@@ -95,7 +75,6 @@ void Server::kick(size_t client_index)
 						it->removeClient(*c_it);
 						c_it->message(":" + clients[client_index].getNickname() + "!" + clients[client_index].getUsername() + "@" + clients[client_index].getIp_address() + " KICK " + channel_name + " " + nickname + (reason.empty() ? "\r\n" : " :" + reason + "\r\n"));
 
-						// Check if the channel is empty and remove it if necessary
 						if (it->getClients().empty())
 						{
 							channels.erase(it);

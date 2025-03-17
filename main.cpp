@@ -25,7 +25,7 @@ bool isValidPort(const std::string& portStr)
         if (!std::isdigit(portStr[i]))
             return false;
     }
-
+	
 	try
 	{
 		long port = std::stol(portStr);

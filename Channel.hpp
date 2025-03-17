@@ -13,10 +13,10 @@ class Channel{
         std::vector<Client> _operators;
         std::vector<Client> _invitedClients;
 
-        bool inviteOnly; // +i
-        bool topicProtection; // +t
-        bool channelKey; // +k
-        bool channelLimit; // +l
+        bool inviteOnly;
+        bool topicProtection;
+        bool channelKey;
+        bool channelLimit;
 
         std::string _key;
         int _limit;
@@ -35,14 +35,14 @@ class Channel{
 
         void addClient(Client client);
         void removeClient(Client client);
+        bool isClientInChannel(std::string nickname) const;
         std::vector<Client> getClients() const;
+        const std::vector<Client>& getClientsVector() const;
 
         void addOperator(Client client);
         void removeOperator(Client client);
         bool isOperator(Client client) const;
         std::vector<Client> getOperators() const;
-
-        bool isClientInChannel(std::string nickname) const;
 
         void setInviteOnly(bool inviteOnly);
         bool getInviteOnly() const;
@@ -62,9 +62,6 @@ class Channel{
         void setLimit(int limit);
         int getLimit() const;
 
-        //development tests
-        void printChannel();
-
         void addInvited(Client client);
         void removeInvited(Client client);
         bool isInvited(Client client) const;
@@ -73,7 +70,6 @@ class Channel{
         void updateOperatorNickname(const std::string& oldnick, const std::string& newnick);
         void updateInvitedClientNickname(const std::string& oldnick, const std::string& newnick);
 
-        const std::vector<Client>& getClientsVector() const;
 };
 
 #endif

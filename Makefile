@@ -13,8 +13,7 @@ SRCS = 	main.cpp \
 		Commands/Topic.cpp \
 		Commands/Kick.cpp \
 		Commands/Mode.cpp \
-		Commands/Invite.cpp \
-		development/utils.cpp
+		Commands/Invite.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 

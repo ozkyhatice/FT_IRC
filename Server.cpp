@@ -48,29 +48,6 @@ Server::~Server()
     connected_clients.clear();
 }
 
-void Server::removeClientFromChannels(size_t client_index)
-{
-    Client& client = clients[client_index];
-
-    for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end();)
-    {
-        if (it->isClientInChannel(client.getNickname())) // Client nesnesi ile kontrol ediyorsan
-        {
-            it->removeClient(client); // Kullanıcıyı kanaldan çıkar
-            std::cout << "Removed " << client.getNickname() << " from " << it->getName() << std::endl;
-
-            // Kanalda kimse kalmamışsa, kanalı listeden çıkar
-            if (it->getClients().empty())
-            {
-                std::cout << "Channel " << it->getName() << " is now empty and will be deleted." << std::endl;
-                it = channels.erase(it);
-                continue;
-            }
-        }
-        ++it;
-    }
-}
-
 void Server::startServer()
 {
     server_addr.sin_family = AF_INET;
@@ -125,13 +102,11 @@ void Server::loopProgram()
             {
                 close(client_sockfd);
                 std::cout << "Accept failed" << std::endl;
-                continue;  // Skip this iteration and try again
+                continue;
             }
             else
             {
                 std::cout << "Accept OK" << std::endl;
-                
-                // Get client IP address
                 char ip_str[INET_ADDRSTRLEN];
                 inet_ntop(AF_INET, &(client_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
                 std::string client_ip(ip_str);
@@ -157,20 +132,10 @@ void Server::loopProgram()
             {
                 bytes_received = recv(connected_clients[client_index], buffer.data(), buffer.size(), 0);
 
-                printServer();
-                printAllInputs();
-                printAllClients();
-
-                for (size_t i = 0; i < channels.size(); ++i)
-                {
-                    channels[i].printChannel();
-                }
-
                 if (bytes_received < 0)
                 {
-                    close(connected_clients[client_index]);
                     std::cout << "Receive failed" << std::endl;
-                    // Remove the client and continue
+                    close(connected_clients[client_index]);
                     clients.erase(clients.begin() + client_index);
                     FD_CLR(connected_clients[client_index], &read_fds);
                     connected_clients.erase(connected_clients.begin() + client_index);
@@ -178,14 +143,8 @@ void Server::loopProgram()
                 else if (bytes_received == 0)
                 {
                     std::cout << clients[client_index].getNickname() << ": Client Disconnected" << std::endl;
-
-                    // Kullanıcıyı tüm kanallardan çıkar
                     removeClientFromChannels(client_index);
-
-                    // Bağlantıyı kapat
                     close(connected_clients[client_index]);
-
-                    // Kullanıcıyı listelerden çıkar
                     clients.erase(clients.begin() + client_index);
                     FD_CLR(connected_clients[client_index], &read_fds);
                     connected_clients.erase(connected_clients.begin() + client_index);
@@ -193,25 +152,15 @@ void Server::loopProgram()
                 else if (bytes_received > 0)
                 {
                     std::string received_data(buffer.data(), bytes_received);
-                
-                    // İLGİLİ CLIENT'IN BUFFER'INA EKLE
                     clients[client_index].appendToCommandBuffer(received_data);
-                
-                    // Eğer komut tamamlanmışsa (örn: \n veya \r\n ile bitiyorsa)
                     std::string& client_buffer = clients[client_index].getCommandBuffer();
-                
                     size_t pos;
-                    // Birden fazla komut varsa, hepsini sırayla al
                     while ((pos = client_buffer.find("\n")) != std::string::npos)
                     {
                         std::string full_command = client_buffer.substr(0, pos);
                         if (!full_command.empty() && full_command.back() == '\r')
-                            full_command.pop_back(); // '\r' varsa temizle
-                
-                        // Komutun tamamı alındı, işleyelim
+                            full_command.pop_back();
                         handleCommand(client_index, full_command);
-                
-                        // Buffer'dan işlenen kısmı çıkar
                         client_buffer.erase(0, pos + 1);
                     }
                 
@@ -225,6 +174,28 @@ void Server::loopProgram()
                 client_index++;
             }
         }
+    }
+}
+
+
+void Server::removeClientFromChannels(size_t client_index)
+{
+    Client& client = clients[client_index];
+
+    for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end();)
+    {
+        if (it->isClientInChannel(client.getNickname()))
+        {
+            it->removeClient(client);
+            std::cout << "Removed " << client.getNickname() << " from " << it->getName() << std::endl;
+            if (it->getClients().empty())
+            {
+                std::cout << "Channel " << it->getName() << " is now empty and will be deleted." << std::endl;
+                it = channels.erase(it);
+                continue;
+            }
+        }
+        ++it;
     }
 }
 
@@ -322,12 +293,7 @@ void Server::executeCommand(size_t c_index)
 
 void Server::handleCommand(size_t client_index, const std::string& command)
 {
-    std::cout << "Command from client " << client_index << ": " << command << std::endl;
-    
-    // Komutu parçala
     std::vector<char> command_vector(command.begin(), command.end());
-
-    // Zaten mevcut olan parsing ve execute işlemine yönlendir
     checkCommands(command_vector);
     executeCommand(client_index);
     logControl(client_index);

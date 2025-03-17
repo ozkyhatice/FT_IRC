@@ -57,6 +57,7 @@ std::vector<Client> Channel::getClients() const{
 void Channel::addOperator(Client client){
     _operators.push_back(client);
 }
+
 void Channel::removeOperator(Client client){
     for (std::vector<Client>::iterator it = _operators.begin(); it != _operators.end(); ++it){
         if (it->getNickname() == client.getNickname()){

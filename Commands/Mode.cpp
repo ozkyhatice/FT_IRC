@@ -3,14 +3,11 @@
 
 void Server::mode(size_t client_index)
 {
-    // Check if client is connected
     if (!clients[client_index].getConnected())
     {
         clients[client_index].message(":server 451 " + clients[client_index].getNickname() + " :You have not registered\r\n");
         return;
     }
-
-    // Check parameters
     if (input.size() < 3)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " MODE :Not enough parameters\r\n");
@@ -26,22 +23,17 @@ void Server::mode(size_t client_index)
     {
         parameter = input[3];
     }
-
-    // Validate channel name
     if (channel_name[0] != '#')
     {
         clients[client_index].message(":server 476 " + clients[client_index].getNickname() + " " + channel_name + " :Invalid channel name\r\n");
         return;
     }
-
-    // Find channel
     bool channel_found = false;
     for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
         if (it->getName() == channel_name)
         {
             channel_found = true;
-            // Validate client permissions
             if (!it->isClientInChannel(nickname))
             {
                 clients[client_index].message(":server 442 " + clients[client_index].getNickname() + " " + channel_name + " :You're not on that channel\r\n");
@@ -56,8 +48,6 @@ void Server::mode(size_t client_index)
 
             std::vector<Client> channel_clients = it->getClients();
             std::string mode_message;
-
-            // Handle different modes
             if (mode == "+o")
             {
                 if (parameter.empty())
@@ -155,8 +145,6 @@ void Server::mode(size_t client_index)
                     return;
                 }
                 size_t new_limit = std::atoi(parameter.c_str());
-    
-             // Check if the new limit is less than the current number of clients in the channel
             if (new_limit < it->getClients().size())
             {
                 clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + channel_name + " :Cannot set limit lower than the current number of users in the channel\r\n");
@@ -176,8 +164,6 @@ void Server::mode(size_t client_index)
                 clients[client_index].message(":server 472 " + clients[client_index].getNickname() + " " + mode + " :Unknown MODE flag\r\n");
                 return;
             }
-
-            // Broadcast mode change to all channel clients
             for (std::vector<Client>::iterator client_it = channel_clients.begin(); client_it != channel_clients.end(); ++client_it)
             {
                 client_it->message(mode_message);

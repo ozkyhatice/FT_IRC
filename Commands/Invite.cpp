@@ -4,14 +4,11 @@
 
 void Server::invite(size_t client_index)
 {
-    // Check if client is connected
     if (!clients[client_index].getConnected())
     {
         clients[client_index].message(":server 451 " + clients[client_index].getNickname() + " :You have not registered\r\n");
         return;
     }
-
-    // Check if we have enough parameters (INVITE <nickname> <channel>)
     if (input.size() < 3)
     {
         clients[client_index].message(":server 461 " + clients[client_index].getNickname() + " INVITE :Not enough parameters\r\n");
@@ -22,16 +19,14 @@ void Server::invite(size_t client_index)
     std::string target_nick = input[1];
     std::string channel_name = input[2];
 
-    // Check if channel name starts with '#'
     if (channel_name[0] != '#')
     {
         clients[client_index].message(":server 476 " + clients[client_index].getNickname() + " " + channel_name + " :Invalid channel name\r\n");
         return;
     }
 
-    // Find target client
     bool target_found = false;
-    Client target_client(-1); // Initialize with invalid fd
+    Client target_client(-1);
     for (std::vector<Client>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         if (it->getNickname() == target_nick)
@@ -48,7 +43,6 @@ void Server::invite(size_t client_index)
         return;
     }
 
-    // Find channel
     bool channel_found = false;
     for (std::vector<Channel>::iterator it = channels.begin(); it != channels.end(); ++it)
     {
@@ -56,37 +50,27 @@ void Server::invite(size_t client_index)
         {
             channel_found = true;
 
-            // Check if inviter is in the channel
             if (!it->isClientInChannel(clients[client_index].getNickname()))
             {
                 clients[client_index].message(":server 442 " + clients[client_index].getNickname() + " " + channel_name + " :You're not on that channel\r\n");
                 return;
             }
 
-            // Check if inviter is channel operator
             if (!it->isOperator(clients[client_index]))
             {
                 clients[client_index].message(":server 482 " + clients[client_index].getNickname() + " " + channel_name + " :You're not channel operator\r\n");
                 return;
             }
-
-            // Check if target is already in the channel
             if (it->isClientInChannel(target_nick))
             {
                 clients[client_index].message(":server 443 " + clients[client_index].getNickname() + " " + target_nick + " " + channel_name + " :is already on channel\r\n");
                 return;
             }
-
-            // Add target to invited list
             it->addInvited(target_client);
-
-            // Send invite message to target
             target_client.message(":" + clients[client_index].getNickname() + "!" + 
                                 clients[client_index].getUsername() + "@" + 
                                 clients[client_index].getIp_address() + 
                                 " INVITE " + target_nick + " " + channel_name + "\r\n");
-
-            // Send confirmation to inviter
             clients[client_index].message(":" + clients[client_index].getIp_address() + 
                                 " 341 " + clients[client_index].getNickname() + 
                                 " " + target_nick + " " + channel_name + "\r\n");

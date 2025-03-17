@@ -13,7 +13,6 @@ class Client{
         std::string nickname;
         std::string password;
         std::string ip_address;
-            // KOMUT BUFFERI
         std::string command_buffer;
     public:
         Client(int fd);
@@ -40,7 +39,6 @@ class Client{
         void setIp_address(std::string ip_address);
 
         void message(std::string message);
-
 
         std::string& getCommandBuffer() { return command_buffer; }
         void appendToCommandBuffer(const std::string& data) { command_buffer += data; }
