@@ -5,6 +5,7 @@
 #include "Channel.hpp"
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <csignal>
@@ -13,6 +14,7 @@
 #include <fcntl.h>
 #include <sstream>
 #include <arpa/inet.h>
+
 class Client;
 class Channel;
 

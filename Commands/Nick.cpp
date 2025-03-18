@@ -26,6 +26,14 @@ void Server::nick(size_t client_index)
 					}
 				}
 			}
+
+			for (size_t i = 0; i < clients.size(); ++i)
+			{
+				if (i != client_index)
+				{
+					clients[i].message(":" + oldnick + " NICK :" + this->input[1] + "\r\n");
+				}
+			}
 		}
 		else
 		{
