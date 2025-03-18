@@ -157,8 +157,8 @@ void Server::loopProgram()
                     while ((pos = client_buffer.find("\n")) != std::string::npos)
                     {
                         std::string full_command = client_buffer.substr(0, pos);
-                        if (!full_command.empty() && full_command.back() == '\r')
-                            full_command.pop_back();
+                        if (!full_command.empty() && full_command[full_command.length() - 1] == '\r')
+                            full_command = full_command.substr(0, full_command.length() - 1);
                         handleCommand(client_index, full_command);
                         client_buffer.erase(0, pos + 1);
                     }
@@ -211,9 +211,11 @@ void Server::checkCommands(std::vector<char> &buffer)
 {
     std::string buffer_string(buffer.data(), buffer.size());
 
-    while (!buffer_string.empty() && (buffer_string.back() == '\r' || buffer_string.back() == '\n' || buffer_string.back() == '\0'))
+    while (!buffer_string.empty() && (buffer_string[buffer_string.length() - 1] == '\r' || 
+                                    buffer_string[buffer_string.length() - 1] == '\n' || 
+                                    buffer_string[buffer_string.length() - 1] == '\0'))
     {
-        buffer_string.pop_back();
+        buffer_string = buffer_string.substr(0, buffer_string.length() - 1);
     }
 
     std::istringstream iss(buffer_string);
