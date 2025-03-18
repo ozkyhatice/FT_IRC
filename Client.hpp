@@ -41,9 +41,9 @@ public:
 
     void message(std::string message);
 
-    std::string &getCommandBuffer() { return command_buffer; }
-    void appendToCommandBuffer(const std::string &data) { command_buffer += data; }
-    void clearCommandBuffer() { command_buffer.clear(); }
+    std::string &getCommandBuffer();
+    void appendToCommandBuffer(const std::string &data);
+    void clearCommandBuffer();
 };
 
 #endif

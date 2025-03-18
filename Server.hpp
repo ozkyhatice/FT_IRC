@@ -11,6 +11,8 @@
 #include <fcntl.h>
 #include <sstream>
 #include <arpa/inet.h>
+class Client;
+class Channel;
 
 class Server
 {

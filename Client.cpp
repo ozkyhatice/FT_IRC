@@ -99,3 +99,18 @@ void Client::message(std::string message)
 {
     send(c_sockfd, message.c_str(), message.size(), 0);
 }
+
+std::string &Client::getCommandBuffer()
+{
+    return command_buffer;
+}
+
+void Client::appendToCommandBuffer(const std::string &data)
+{
+    command_buffer += data;
+}
+
+void Client::clearCommandBuffer()
+{
+    command_buffer.clear();
+}
