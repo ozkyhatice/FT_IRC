@@ -8,6 +8,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <csignal>
+#include <cstring>
+#include <cstdlib>
 #include <fcntl.h>
 #include <sstream>
 #include <arpa/inet.h>

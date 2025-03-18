@@ -1,5 +1,6 @@
 #include "../Server.hpp"
 #include "../Channel.hpp"
+#include <cstdlib>
 
 void Server::mode(size_t client_index)
 {

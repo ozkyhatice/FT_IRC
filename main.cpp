@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include <limits>
 #include <stdexcept>
+#include <cstdlib>
 
 Server *g_server = NULL;
 
@@ -28,7 +29,7 @@ bool isValidPort(const std::string &portStr)
 
 	try
 	{
-		long port = std::stol(portStr);
+		int port = std::atoi(portStr.c_str());
 		return port >= 0 && port <= 65535;
 	}
 	catch (const std::exception &)
@@ -55,7 +56,7 @@ int main(int ac, char **av)
 
 	try
 	{
-		g_server = new Server(std::stoi(av[1]), av[2]);
+		g_server = new Server(std::atoi(av[1]), av[2]);
 		g_server->loopProgram();
 	}
 	catch (const std::exception &e)

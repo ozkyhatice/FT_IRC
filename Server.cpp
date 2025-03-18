@@ -1,5 +1,6 @@
 #include "Server.hpp"
 #include "Channel.hpp"
+#include <algorithm>
 
 Server::Server(int port, std::string password) : port(port), password(password)
 {
@@ -243,6 +244,7 @@ void Server::checkCommands(std::vector<char> &buffer)
 
     if (!realname.empty())
     {
+        std::replace(realname.begin(), realname.end(), ' ', '-');
         this->input.push_back(realname);
     }
 }
